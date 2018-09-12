@@ -89,7 +89,10 @@ exclude_generator:
 # Deployment
 ## Docs: http://hexo.io/docs/deployment.html
 deploy:
-  type: heroku
-  repo: https://git.heroku.com/karlilab.git
+  type: git
+  repo: https://github.com/karlito40/karlito40.github.io.git
+  branch: master
+  # type: heroku
+  # repo: https://git.heroku.com/karlilab.git
 
-google_analytics: UA-60007492-1
+#google_analytics: UA-60007492-1
