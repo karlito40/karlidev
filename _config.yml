@@ -92,7 +92,7 @@ exclude_generator:
 deploy:
   type: git
   repo: https://github.com/karlito40/karlito40.github.io.git
-  branch: master
+  branch: gh-pages
   # type: heroku
   # repo: https://git.heroku.com/karlilab.git
 
