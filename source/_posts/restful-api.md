@@ -86,7 +86,7 @@ var router = express.Router();
 // Associe '/' au json {yolo: 'hey'}
 router.get('/', function(req, res) {
     res.json({
-    	yolo: 'Hey'
+    	yolo: 'Hey !'
     });   
 });
 
