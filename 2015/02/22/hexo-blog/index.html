@@ -1,0 +1,486 @@
+<!doctype html>
+<html class="theme-next use-motion">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.3.0rc1"/>
+
+
+    <meta name="description" content="Node et Javascript en pratique: tutoriels, exemple et experimentation." />
+
+
+
+    <meta name="keywords" content="Javascript, Node, Mongo, PHP, Go, Git, Benchmark, Developpeur web" />
+
+
+
+
+
+    <link rel="shorticon icon" type="image/x-icon" href="/favicon.ico?v=0.3.0rc1" />
+
+
+<style>
+body{
+	word-spacing:2px;
+}
+
+</style>
+
+
+  <title> Hexo, un blog en markdown // Un blog... </title>
+</head>
+
+<body>
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <div id="header" class="header">
+      <div class="header-inner">
+        <h1 class="site-meta">
+    <a href="/" class="brand">
+        <span class="logo">
+          <i class="icon-logo"></i>
+        </span>
+        <span class="site-title">Karlidev</span>
+    </a>
+</h1>
+
+
+  <ul id="menu" class="menu">
+    
+      
+      <li class="menu-item menu-item-home">
+        <a href="/">
+          <i class="menu-item-icon icon-home"></i> <br />
+          Accueil
+        </a>
+      </li>
+    
+      
+      <li class="menu-item menu-item-archives">
+        <a href="/archives">
+          <i class="menu-item-icon icon-archives"></i> <br />
+          Archives
+        </a>
+      </li>
+    
+      
+      <li class="menu-item menu-item-tags">
+        <a href="/tags">
+          <i class="menu-item-icon icon-tags"></i> <br />
+          Tags
+        </a>
+      </li>
+    
+  </ul>
+
+
+      </div>
+    </div>
+
+    <div id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content">
+          
+            
+          
+
+          <div id="posts" class="posts-expand">
+            
+  
+
+  <div class="post post-type-normal ">
+    <div class="post-header">
+
+      
+      
+        <h1 class="post-title">
+          
+          
+            
+              Hexo, un blog en markdown
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+          <span class="post-time">
+            
+              Posté le 22/02/2015
+            
+          </span>
+        
+          
+        
+      </div>
+    </div>
+
+    
+      <div class="post-body">
+
+        
+        
+
+        
+          <p>Si comme moi vous êtes rebuté par les back offices et les usines à gaz facon wordpress alors <a href="http://hexo.io/" target="_blank" rel="noopener">Hexo</a> est fait pour vous. Ici, pas de base de données, seulement du json et du markdown simple. Plus besoin de se connecter ou de lancer un serveur pour rédiger et formater son article. Le bloc note sera notre seul et unique outil. Besoin d’un exemple ? C’est partit.</p>
+<figure class="highlight plain"><figcaption><span>mon-article</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">title: Hexo, un blog en markdown</span><br><span class="line">date: 2015-02-22 18:29:50</span><br><span class="line">tags:</span><br><span class="line">- Hexo</span><br><span class="line">---</span><br><span class="line"></span><br><span class="line">Si vous êtes rebuté par les back offices et les ..</span><br></pre></td></tr></table></figure>
+<p>Génial non ? L’entête de notre article est délimité par les trois “-“ et le reste du contenu utilisera du mardown simple. Nous allons maintenant voir comment créer entièrement un blog sous hexo en moins de 5 minutes.<br><a id="more"></a></p>
+<h3 id="Utilisation-de-base"><a href="#Utilisation-de-base" class="headerlink" title="Utilisation de base"></a>Utilisation de base</h3><p>C’est le moment d’installer node si vous l’avez pas déjà fait sinon vous pouvez dès à présent récupérer hexo comme ci-dessous:</p>
+<figure class="highlight bash"><figcaption><span>install-hexo</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ npm install -g hexo</span><br></pre></td></tr></table></figure>
+<p>Installer hexo globalement vous permet d’avoir accès à sa ligne de commande. Il est ainsi aisé de créer un blog à partir de zéro.</p>
+<figure class="highlight bash"><figcaption><span>init-blog</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ hexo init project-test</span><br><span class="line">$ <span class="built_in">cd</span> project-test</span><br><span class="line">$ npm install</span><br></pre></td></tr></table></figure>
+<p>Tadam, vous avez maintenant un blog prêt à être utilisé. Elle est pas belle la vie ? Vous ne me croyez pas ? Alors lancez cette commande.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
+<p>Et observez le résultat dans votre navigateur préféré <a href="http://localhost:4000" target="_blank" rel="noopener">check</a>.</p>
+<p><img src="/images/screen1.png" alt=""></p>
+<p>Un blog sans article est un peu… fade. Il est temps de passer à l’action è.é</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new post <span class="string">"un super post"</span></span><br></pre></td></tr></table></figure>
+<p>Votre article est alors créée dans /source/_posts/un-super-post.md et enregistré dans le fichier /db.json. Toutes modifications faites dans un-super-post.md seront néanmoins prises en compte. Les tags et les catégories sont automatiquement gérés dans l’entête de ce dernier.</p>
+<h3 id="Image"><a href="#Image" class="headerlink" title="Image"></a>Image</h3><p>Pour uploader vos propres images, le plus simple reste de les intégrer au dossier /themes/(theme_courant)/source/images. Actuellement votre theme courant est sans doute “landscape”. Votre contenu aura ainsi accès à vos images sans avoir à passer par un prestataire externe (imgur, etc..).</p>
+<figure class="highlight markdown"><figcaption><span>utilisation-image.md</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Et observez le résultat dans votre navigateur préféré [<span class="string">check</span>](<span class="link">http://localhost:4000</span>).</span><br><span class="line"></span><br><span class="line">&lt;img class="full-image" src="/images/screen1.png" alt=""&gt;</span><br></pre></td></tr></table></figure>
+<p>A noter, j’utilise ici la balise img au lieu du markdown prévu à cet effet pour spécifier un attribut class. Si jamais vous en avez besoin, voici comment on intègre une image en markdown.</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">![<span class="string">alt_text</span>](<span class="link">/images/screen1.png</span>)</span><br></pre></td></tr></table></figure>
+<h3 id="Gestion-des-themes"><a href="#Gestion-des-themes" class="headerlink" title="Gestion des thèmes"></a>Gestion des thèmes</h3><p>Hexo vient avec un gestionnaire de thème assez simple à utiliser. La liste des thèmes est accessible <a href="https://github.com/hexojs/hexo/wiki/themes" target="_blank" rel="noopener">ici</a>. Si nous prenons par exemple le cas d’<a href="http://foreachsam.github.io/blog-framework-semantic-ui/article/" target="_blank" rel="noopener">Aiki</a> il nous suffit de dézipper ou de cloner son <a href="https://github.com/foreachsam/hexo-theme-aiki" target="_blank" rel="noopener">repo</a> dans /themes/</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ git <span class="built_in">clone</span> https://github.com/foreachsam/hexo-theme-aiki.git themes/aiki</span><br></pre></td></tr></table></figure>
+<p>La deuxième partie de commande themes/aiki dépend évidemment de votre chemin courant.</p>
+<p>Il ne vous reste plus qu’à spécifier ce thème dans /_config.yml</p>
+<figure class="highlight bash"><figcaption><span>yaml _config.yml</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">theme: aiki</span><br></pre></td></tr></table></figure>
+<p>Petite précision, le nom du thème correspond à son nom de dossier.</p>
+<p>Voila, c’est finit pour aujourd’hui ! Le but du prochain post sera de déployer ce blog pour 0€ :D</p>
+<p><img src="/images/screen2.png" alt=""></p>
+
+        
+
+      </div>
+    
+
+    
+      <div class="post-footer">
+        
+          <div class="post-tags">
+            
+              <a href="/tags/Hexo/">
+                #Hexo
+              </a>
+            
+          </div>
+        
+
+        
+
+        
+      </div>
+    
+  </div>
+
+
+
+  
+    
+  
+
+          </div>
+
+          
+        </div>
+
+        
+<div class="sidebar-toggle">
+  <div class="sidebar-toggle-line-wrap">
+    <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+    <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+    <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+  </div>
+</div>
+
+<div id="sidebar" class="sidebar">
+  <div class="sidebar-inner">
+
+    
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-overview" data-target="site-overview">
+          Ensemble
+        </li>
+        <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc">
+          Table Des Matières
+        </li>
+      </ul>
+    
+
+    <div class="site-overview">
+      <div class="site-author motion-element">
+        <img class="site-author-image" src="/images/default_avatar.jpg" alt="Karlito" />
+        <p class="site-author-name">Karlito</p>
+      </div>
+      <p class="site-description motion-element">Node et Javascript en pratique: tutoriels, exemple et experimentation.</p>
+      <div class="site-state motion-element">
+        <div class="site-state-item site-state-posts">
+          <span class="site-state-item-count">5</span>
+          <span class="site-state-item-name">articles</span>
+        </div>
+        <div class="site-state-item site-state-tags">
+            <span class="site-state-item-count">8</span>
+            <span class="site-state-item-name">tags</span>
+        </div>
+        <div class="site-state-item site-state-pages">
+            <span class="site-state-item-count">2</span>
+            <span class="site-state-item-name">pages</span>
+        </div>
+      </div>
+
+      
+
+      <div class="social-info motion-element">
+        
+          
+            <span class="soclial-item">
+              <a href="https://github.com/karlito40">GITHUB</a>
+            </span>
+          
+            <span class="soclial-item">
+              <a href="https://twitter.com/karlito40">TWITTER</a>
+            </span>
+          
+        
+      </div>
+
+    </div>
+
+    
+      <div class="post-toc sidebar-panel-active">
+        <ol class="motion-element"><li class="motion-element-item motion-element-level-3"><a class="motion-element-link" href="#Utilisation-de-base"><span class="motion-element-number">1.</span> <span class="motion-element-text">Utilisation de base</span></a></li><li class="motion-element-item motion-element-level-3"><a class="motion-element-link" href="#Image"><span class="motion-element-number">2.</span> <span class="motion-element-text">Image</span></a></li><li class="motion-element-item motion-element-level-3"><a class="motion-element-link" href="#Gestion-des-themes"><span class="motion-element-number">3.</span> <span class="motion-element-text">Gestion des thèmes</span></a></li></ol>
+      </div>
+    
+  </div>
+</div>
+
+
+      </div>
+    </div>
+
+    <div id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">
+  
+  &copy; &nbsp; 
+  2018
+  <span class="with-love">
+    <i class="icon-heart"></i>
+  </span>
+  <span class="author">Karlito</span>
+</div>
+
+<!--
+<div class="powered-by">
+  Powered by <a class="theme-link" href="http://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Thème - <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">NexT</a>
+</div>
+-->
+
+
+
+
+
+      </div>
+    </div>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/dist/jquery.min.js?v=0.3.0rc1"></script>
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript">
+    $(document).ready(function() {
+      $(".fancybox").fancybox();
+    });
+  </script>
+
+
+
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      var body = $('body');
+      var isSidebarVisible = false;
+      var sidebarToggle = $('.sidebar-toggle');
+      var sidebarToggleLine1st = $('.sidebar-toggle-line-first')
+      var sidebarToggleLine2nd = $('.sidebar-toggle-line-middle');
+      var sidebarToggleLine3rd = $('.sidebar-toggle-line-last');
+      var sidebar = $('.sidebar');
+
+      var sidebarToogleLineStatusInit = {width: '100%', opacity: 1, left: 0, rotateZ: 0, top: 0};
+
+      var sidebarToggleLine1stStatusInit = sidebarToogleLineStatusInit;
+      var sidebarToggleLine1stStatusArrow = {width: '50%', rotateZ: '-45deg', top: '2px'};
+      var sidebarToogleLine1stStatusClose = {width: '100%', rotateZ: '-45deg', top: '5px'};
+
+      var sidebarToggleLine2ndStatusInit = sidebarToogleLineStatusInit;
+      var sidebarToggleLine2ndStatusArrow = {width: '90%'};
+      var sidebarToogleLine2ndStatusClose = {opacity: 0};
+
+      var sidebarToggleLine3rdStatusInit = sidebarToogleLineStatusInit;
+      var sidebarToggleLine3rdStatusArrow = {width: '50%', rotateZ: '45deg', top: '-2px'};
+      var sidebarToogleLine3rdStatusClose = {width: '100%', rotateZ: '45deg', top: '-5px'};
+
+      sidebatToggleMotion();
+      postsListMotion();
+      backToTopMotion();
+
+      function sidebarContentMotion () {
+        $('.sidebar .motion-element').velocity(
+          'transition.slideRightIn',
+          {stagger: 50, drag: true}
+        );
+      }
+
+
+      function backToTopMotion () {
+        var b2top = $('.back-to-top');
+        b2top.on('click', function () {
+          body.velocity('scroll');
+        });
+      }
+
+      function sidebarShowMotion () {
+        var sidebarDisplayDuration = 300;
+        var sidebarWidth = '320px';
+
+        sidebarToggleLine1st.velocity(sidebarToogleLine1stStatusClose);
+        sidebarToggleLine2nd.velocity(sidebarToogleLine2ndStatusClose);
+        sidebarToggleLine3rd.velocity(sidebarToogleLine3rdStatusClose);
+
+        sidebar.velocity({width: sidebarWidth}, sidebarDisplayDuration);
+        isDesktop() && body.velocity({paddingRight: sidebarWidth}, sidebarDisplayDuration);
+        sidebarContentMotion();
+      }
+
+      function sidebarHideMotion () {
+        isDesktop() && body.velocity({paddingRight: 0});
+        sidebar.velocity('reverse');
+
+        sidebarToggleLine1st.velocity(sidebarToggleLine1stStatusInit);
+        sidebarToggleLine2nd.velocity(sidebarToggleLine2ndStatusInit);
+        sidebarToggleLine3rd.velocity(sidebarToggleLine3rdStatusInit);
+      };
+
+      function postsListMotion () {
+        $('.post').velocity('transition.slideDownIn', {stagger: 300, drag: true});
+      }
+
+      function sidebatToggleMotion () {
+        sidebarToggle.on('click', function () {
+          isSidebarVisible ? sidebarHideMotion() : sidebarShowMotion();
+          isSidebarVisible = !isSidebarVisible;
+        });
+        sidebarToggle.hover(function () {
+          if (isSidebarVisible) {return}
+          sidebarToggleLine1st.velocity('stop').velocity(sidebarToggleLine1stStatusArrow);
+          sidebarToggleLine2nd.velocity('stop').velocity(sidebarToggleLine2ndStatusArrow);
+          sidebarToggleLine3rd.velocity('stop').velocity(sidebarToggleLine3rdStatusArrow);
+        }, function () {
+          if (isSidebarVisible) {return}
+          sidebarToggleLine1st.velocity('stop').velocity(sidebarToggleLine1stStatusInit);
+          sidebarToggleLine2nd.velocity('stop').velocity(sidebarToggleLine2ndStatusInit);
+          sidebarToggleLine3rd.velocity('stop').velocity(sidebarToggleLine3rdStatusInit);
+        });
+      }
+
+      function isDesktop () {
+        return screen.width > 991;
+      }
+
+      function isTablet () {
+        return screen.width < 992 && screen.width > 767;
+      }
+
+      function isMobile () {
+        return screen.width < 767;
+      }
+    });
+  </script>
+
+  
+
+  
+  
+    <script type="text/javascript">
+      $(document).ready(function () {
+        var html = $('html');
+
+        $('.sidebar-nav li').on('click', function () {
+          var item = $(this);
+          var activeTabClassName = 'sidebar-nav-active';
+          var activePanelClassName = 'sidebar-panel-active';
+          if (item.hasClass(activeTabClassName)) {
+            return;
+          }
+
+          var currentTarget = $('.' + activePanelClassName);
+          var target = $('.' + item.data('target'));
+
+          $.Velocity
+            .animate(currentTarget, 'transition.slideUpOut', 200)
+            .then(function () {
+              target
+              .velocity('stop')
+              .velocity('transition.slideDownIn', 200)
+              .addClass(activePanelClassName);
+            });
+
+          item.siblings().removeClass(activeTabClassName);
+          item.addClass(activeTabClassName);
+        });
+
+        $('.post-toc a').on('click', function (e) {
+          e.preventDefault();
+          var offset = $(this.getAttribute('href')).offset().top;
+          html.velocity('stop').velocity('scroll', {
+            offset: offset  + 'px',
+            mobileHA: false
+          });
+        });
+      });
+    </script>
+  
+
+
+
+  
+  
+
+  
+
+
+  
+  <script type="text/javascript">
+    (function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=
+        function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;
+      e=o.createElement(i);r=o.getElementsByTagName(i)[0];
+      e.src='//www.google-analytics.com/analytics.js';
+      r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));
+    ga('create','UA-60007492-1');ga('send','pageview');
+  </script>
+
+</body>
+</html>

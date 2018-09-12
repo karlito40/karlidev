@@ -1,0 +1,533 @@
+<!doctype html>
+<html class="theme-next use-motion">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.3.0rc1"/>
+
+
+    <meta name="description" content="Node et Javascript en pratique: tutoriels, exemple et experimentation." />
+
+
+
+    <meta name="keywords" content="Javascript, Node, Mongo, PHP, Go, Git, Benchmark, Developpeur web" />
+
+
+
+
+
+    <link rel="shorticon icon" type="image/x-icon" href="/favicon.ico?v=0.3.0rc1" />
+
+
+<style>
+body{
+	word-spacing:2px;
+}
+
+</style>
+
+
+  <title> Créer une api avec node // Un blog... </title>
+</head>
+
+<body>
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <div id="header" class="header">
+      <div class="header-inner">
+        <h1 class="site-meta">
+    <a href="/" class="brand">
+        <span class="logo">
+          <i class="icon-logo"></i>
+        </span>
+        <span class="site-title">Karlidev</span>
+    </a>
+</h1>
+
+
+  <ul id="menu" class="menu">
+    
+      
+      <li class="menu-item menu-item-home">
+        <a href="/">
+          <i class="menu-item-icon icon-home"></i> <br />
+          Accueil
+        </a>
+      </li>
+    
+      
+      <li class="menu-item menu-item-archives">
+        <a href="/archives">
+          <i class="menu-item-icon icon-archives"></i> <br />
+          Archives
+        </a>
+      </li>
+    
+      
+      <li class="menu-item menu-item-tags">
+        <a href="/tags">
+          <i class="menu-item-icon icon-tags"></i> <br />
+          Tags
+        </a>
+      </li>
+    
+  </ul>
+
+
+      </div>
+    </div>
+
+    <div id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content">
+          
+            
+          
+
+          <div id="posts" class="posts-expand">
+            
+  
+
+  <div class="post post-type-normal ">
+    <div class="post-header">
+
+      
+      
+        <h1 class="post-title">
+          
+          
+            
+              Créer une api avec node
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+          <span class="post-time">
+            
+              Posté le 20/03/2015
+            
+          </span>
+        
+          
+        
+      </div>
+    </div>
+
+    
+      <div class="post-body">
+
+        
+        
+
+        
+          <p>Personnellement, j’ai toujours préféré réinventer la roue plutôt que d’utiliser un module déjà tout fait ou de copier/coller du code. L’intérêt est évidemment d’avoir quelque chose d’entièrement customisable, mais le but est aussi d’acquérir une connaissance pratique et une experience sur des systèmes qu’on sera ammené à utiliser tot ou tard (ici les apis).</p>
+<p>Aujourd’hui, je vous propose donc d’implémenter les bases d’une api avec <strong>node</strong>, <strong>express</strong> et <strong>mongo</strong>. Let’s go !</p>
+<p><img src="/images/rest_api.png" alt=""><br><a id="more"></a></p>
+<p>Nous allons créer une api simple dont le but sera de gérer des pandas; parce que les pandas c’est cool. A la fin de ce tuto nous auront appris à:</p>
+<ul>
+<li>gérer des URL standardisées</li>
+<li>gérer un CRUD (<strong>Create</strong>, <strong>Read</strong>, <strong>Update</strong>, <strong>Delete</strong>) sur un item donné</li>
+<li>utiliser les verbes HTTP (<strong>GET</strong>, <strong>POST</strong>, <strong>PUT</strong>, <strong>DELETE</strong>)</li>
+</ul>
+<p>Bref, du REST tout ce qu’il y’a de plus basique.</p>
+<h3 id="Fondation"><a href="#Fondation" class="headerlink" title="Fondation"></a>Fondation</h3><p>On commence par créer nos dépendances.</p>
+<figure class="highlight javascript"><figcaption><span>package.json</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="string">"name"</span>: <span class="string">"node-api"</span>,</span><br><span class="line">    <span class="string">"main"</span>: <span class="string">"server.js"</span>,</span><br><span class="line">    <span class="string">"private"</span>: <span class="literal">true</span>,</span><br><span class="line">    <span class="string">"dependencies"</span>: &#123;</span><br><span class="line">        <span class="string">"express"</span>: <span class="string">"4.*"</span>,</span><br><span class="line">        <span class="string">"mongoose"</span>: <span class="string">"3.*"</span>,</span><br><span class="line">        <span class="string">"body-parser"</span>: <span class="string">"1.*"</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>Express</strong> est un framework node dédié au web. <strong>Mongoose</strong> est un ORM pour mongo qui nous permettra de communiquer avec celui-ci sans se prendre la tête. <strong>Body-parser</strong>, quant à lui, nous permettra de décoder le contenu d’une requête.</p>
+<p>Passons à l’installation.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ npm install</span><br></pre></td></tr></table></figure>
+<p>La base de notre serveur.<br><figure class="highlight javascript"><figcaption><span>server.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> express = <span class="built_in">require</span>(<span class="string">'express'</span>)</span><br><span class="line">	, app = express()</span><br><span class="line">	, bodyParser = <span class="built_in">require</span>(<span class="string">'body-parser'</span>);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// Section "Panda Time"</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// Section "Middleware"</span></span><br><span class="line"><span class="comment">// decode les requêtes de type application/x-www-form-urlencoded</span></span><br><span class="line">app.use(bodyParser.urlencoded(&#123; <span class="attr">extended</span>: <span class="literal">true</span> &#125;));</span><br><span class="line"><span class="comment">// decode le contenu d'une requete de type application/json</span></span><br><span class="line">app.use(bodyParser.json());</span><br><span class="line"></span><br><span class="line"><span class="comment">// on mettra notre router ici pour rester simple</span></span><br><span class="line"><span class="comment">// Section "Router"</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// on demarre le serveur</span></span><br><span class="line"><span class="keyword">var</span> port = process.env.PORT || <span class="number">8080</span>;        </span><br><span class="line">app.listen(port, <span class="literal">null</span>, <span class="literal">null</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">	<span class="built_in">console</span>.log(<span class="string">'Demarrage du serveur sur le port'</span>, port);</span><br><span class="line"></span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure></p>
+<p>Les fondations sont maintenant posées. Il est temps de passer aux choses sérieuses.</p>
+<h3 id="Router"><a href="#Router" class="headerlink" title="Router"></a>Router</h3><p>On créée une route de test histoire de s’assurer que notre serveur marche. Placez le code suivant dans <strong>server.js</strong> section <strong>Router</strong></p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Section "Router"</span></span><br><span class="line"><span class="keyword">var</span> router = express.Router();              </span><br><span class="line"></span><br><span class="line"><span class="comment">// Création d'une uri de test dans notre router</span></span><br><span class="line"><span class="comment">// Associe '/' au json &#123;yolo: 'hey'&#125;</span></span><br><span class="line">router.get(<span class="string">'/'</span>, <span class="function"><span class="keyword">function</span>(<span class="params">req, res</span>) </span>&#123;</span><br><span class="line">    res.json(&#123;</span><br><span class="line">    	yolo: <span class="string">'Hey'</span></span><br><span class="line">    &#125;);   </span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">// Toutes les uris présentes dans notre router seront préfixées par '/api'</span></span><br><span class="line">app.use(<span class="string">'/api'</span>, router);</span><br></pre></td></tr></table></figure>
+<p>Je vous invite à demarrer votre serveur avec <strong>nodemon</strong> si vous ne voulez pas à avoir à le redémarrer à chaque modification.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ nodemon server.js</span><br></pre></td></tr></table></figure>
+<p>Normalement, si tout s’est bien passé, votre <a href="http://localhost:8080/api" target="_blank" rel="noopener">navigateur</a> devrait afficher {“yolo”:”Hey”}. Pour gagner du temps lors des tests, on utilisera <strong>postman</strong> ou <strong>curl</strong> en ligne de commande.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ curl http://localhost:8080/api -X GET</span><br></pre></td></tr></table></figure>
+<p>Cool ! Notre router marche. On va maintenant s’atteler à la création des données.</p>
+<h3 id="Panda-time"><a href="#Panda-time" class="headerlink" title="Panda time"></a>Panda time</h3><p>Avant de commencer, nous allons devoir nous connecter à mongo avec <strong>mongoose</strong>.</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Section "Panda Time"</span></span><br><span class="line"><span class="keyword">var</span> mongoose   = <span class="built_in">require</span>(<span class="string">'mongoose'</span>)</span><br><span class="line">	, db = mongoose.connection;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Tentative de connexion à notre bdd</span></span><br><span class="line">mongoose.connect(<span class="string">'mongodb://localhost:27017/api_test'</span>);</span><br><span class="line"><span class="comment">// Verifie le status de la connection</span></span><br><span class="line">db.on(<span class="string">'error'</span>, <span class="function"><span class="keyword">function</span>(<span class="params">err</span>) </span>&#123;</span><br><span class="line">	<span class="built_in">console</span>.error(<span class="string">"La connection a mongo a echoue"</span>);</span><br><span class="line">&#125;);</span><br><span class="line">db.once(<span class="string">'open'</span>, <span class="function"><span class="keyword">function</span> (<span class="params">callback</span>) </span>&#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">'yay ! '</span>)</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>Mongoose vient avec un model de données vraiment bien foutu mais cela sera l’objet d’un prochain article. En attendant, nous allons créer un panda basique constitué d’un unique champ nom.</p>
+<p>Dans <strong>app/models/panda.js</strong>:</p>
+<figure class="highlight javascript"><figcaption><span>app/models/panda.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> mongoose = <span class="built_in">require</span>(<span class="string">'mongoose'</span>)</span><br><span class="line">	, Schema = mongoose.Schema;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> PandaSchema   = <span class="keyword">new</span> Schema(&#123;</span><br><span class="line">    nom: <span class="built_in">String</span></span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="built_in">module</span>.exports = mongoose.model(<span class="string">'Panda'</span>, PandaSchema);</span><br></pre></td></tr></table></figure>
+<p>On update notre serveur pour pouvoir utiliser notre panda.</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ...</span></span><br><span class="line"><span class="keyword">var</span> mongoose   = <span class="built_in">require</span>(<span class="string">'mongoose'</span>)</span><br><span class="line">	, db = mongoose.connection</span><br><span class="line">	, Panda = <span class="built_in">require</span>(<span class="string">'./app/models/panda'</span>);</span><br><span class="line"><span class="comment">// ...</span></span><br></pre></td></tr></table></figure>
+<p>Les fondations sont maintenant érigées. La prochaine étape sera de créer l’api… ce qui reste notre but principal.</p>
+<h3 id="Api"><a href="#Api" class="headerlink" title="Api"></a>Api</h3><p>Voici les routes que nous allons créer avec leurs verbes HTTP.</p>
+<ul>
+<li>/api/pandas (<strong>GET</strong>) Récupère tous les pandas</li>
+<li>/api/pandas (<strong>POST</strong>) Créée un panda</li>
+<li>/api/pandas/:panda_id (<strong>GET</strong>) Récupère un panda donné</li>
+<li>/api/pandas/:panda_id (<strong>PUT</strong>) Modifie un panda donné</li>
+<li>/api/pandas/:panda_id (<strong>DELETE</strong>) Supprime un panda</li>
+</ul>
+<p>Ce sont les routes basiques dans une API.</p>
+<p>Nous avons vu auparavant comment utiliser le Router d’express avec les methodes simples (comme router.post(), router.get(), ..) mais cet usage est un peu rebarbabatif dans la mesure où on sera obligé de dupliquer les uri pour chaques verbes HTTP. Pas de panique, les devs d’express ont pensé à tout: on peut catégoriser des routes.</p>
+<p>Utilisez ce code de test dans server.js.</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">router.route(<span class="string">'/pandas'</span>)</span><br><span class="line">	.post(<span class="function"><span class="keyword">function</span>(<span class="params">req, res, next</span>) </span>&#123;</span><br><span class="line">		res.json(&#123;</span><br><span class="line">			result: <span class="string">"pandas post"</span></span><br><span class="line">		&#125;)        </span><br><span class="line">    &#125;)</span><br><span class="line">    .get(<span class="function"><span class="keyword">function</span>(<span class="params">req, res, next</span>) </span>&#123;</span><br><span class="line">		res.json(&#123;</span><br><span class="line">			result: <span class="string">"pandas get"</span></span><br><span class="line">		&#125;)        </span><br><span class="line">    &#125;);</span><br></pre></td></tr></table></figure>
+<p>Et constatez le résultat avec les commandes suivantes<br><figure class="highlight bash"><figcaption><span>test-get-pandas</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ curl http://localhost:8080/api/pandas -X GET</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight bash"><figcaption><span>test-post-pandas</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ curl http://localhost:8080/api/pandas -X POST -d <span class="string">'&#123;"nom":"Super panda"&#125;'</span> -H <span class="string">"Content-Type: application/json"</span></span><br></pre></td></tr></table></figure>
+<p>Tout marche niquel ! On va pouvoir implémenter l’insertion et la récupération.</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">router.route(<span class="string">'/pandas'</span>)</span><br><span class="line">	<span class="comment">// Ajoute un panda avec le nom renseigné en POST</span></span><br><span class="line">	.post(<span class="function"><span class="keyword">function</span>(<span class="params">req, res, next</span>) </span>&#123;</span><br><span class="line">		<span class="keyword">var</span> panda = <span class="keyword">new</span> Panda();</span><br><span class="line">        panda.nom = req.body.nom;  </span><br><span class="line">        panda.save(<span class="function"><span class="keyword">function</span>(<span class="params">err</span>) </span>&#123;</span><br><span class="line">            res.json(&#123;<span class="attr">success</span>: (err) ? <span class="literal">false</span> : <span class="literal">true</span>&#125;);</span><br><span class="line">        &#125;);       </span><br><span class="line">    &#125;)</span><br><span class="line">    <span class="comment">// Récupère tous les pandas</span></span><br><span class="line">    .get(<span class="function"><span class="keyword">function</span>(<span class="params">req, res, next</span>) </span>&#123;</span><br><span class="line">		Panda.find(<span class="function"><span class="keyword">function</span>(<span class="params">err, pandas</span>) </span>&#123;</span><br><span class="line">            <span class="keyword">if</span> (err) res.send(err);</span><br><span class="line">            res.json(pandas);</span><br><span class="line">        &#125;);        </span><br><span class="line">    &#125;);</span><br></pre></td></tr></table></figure>
+<p>Renvoyez les commandes de test, utilisez le verbe POST pour ajouter un panda et constatez l’ajout celui-ci en utilisant GET.</p>
+<p>Il nous reste maintenant à créer un nouveau groupe de route pour gérer un panda donné.</p>
+<p>Commencons par récupérer un panda.</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">router.route(<span class="string">'/pandas/:panda_id'</span>)</span><br><span class="line">    <span class="comment">// Récupère un panda donné</span></span><br><span class="line">    .get(<span class="function"><span class="keyword">function</span>(<span class="params">req, res, next</span>) </span>&#123;</span><br><span class="line">        Panda.findById(req.params.panda_id, <span class="function"><span class="keyword">function</span>(<span class="params">err, panda</span>) </span>&#123;</span><br><span class="line">            <span class="keyword">if</span> (err) res.send(err);</span><br><span class="line">            res.json(panda);</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;);</span><br></pre></td></tr></table></figure>
+<p>Et la méthode pour tester (changez l’id du panda en fonction de votre base de données).</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ curl http://localhost:8080/api/pandas/550c689a1d61a6904e3315fe -X GET</span><br></pre></td></tr></table></figure>
+<p>La modification d’un panda se fait de la même façon que lors de sa création.</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// A ajouter au groupe précédent</span></span><br><span class="line"><span class="comment">// Modifie le nom d'un panda</span></span><br><span class="line">.put(<span class="function"><span class="keyword">function</span>(<span class="params">req, res, next</span>) </span>&#123;</span><br><span class="line">    Panda.findById(req.params.panda_id, <span class="function"><span class="keyword">function</span>(<span class="params">err, panda</span>) </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (err) res.send(err);</span><br><span class="line"></span><br><span class="line">        panda.nom = req.body.nom;  </span><br><span class="line">        panda.save(<span class="function"><span class="keyword">function</span>(<span class="params">err</span>) </span>&#123;</span><br><span class="line">           res.json(&#123;<span class="attr">success</span>: (err) ? <span class="literal">false</span> : <span class="literal">true</span>&#125;);</span><br><span class="line">        &#125;);</span><br><span class="line"></span><br><span class="line">    &#125;);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>Testons maintenant.</p>
+<figure class="highlight bash"><figcaption><span>test-put-panda</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ curl http://localhost:8080/api/pandas/550c689a1d61a6904e3315fe -X PUT -d <span class="string">'&#123;"nom":"Mechant panda"&#125;'</span> -H <span class="string">"Content-Type: application/json"</span></span><br></pre></td></tr></table></figure>
+<p>Ajoutons la suppression d’un panda avec le verbe DELETE (toujours dans le me groupe du router).</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Supprime un panda</span></span><br><span class="line">.delete(<span class="function"><span class="keyword">function</span>(<span class="params">req, res, next</span>) </span>&#123;</span><br><span class="line">    Panda.remove(&#123; <span class="attr">_id</span>: req.params.panda_id &#125;, <span class="function"><span class="keyword">function</span>(<span class="params">err, panda</span>) </span>&#123;</span><br><span class="line">		res.json(&#123;<span class="attr">success</span>: (err) ? <span class="literal">false</span> : <span class="literal">true</span>&#125;);</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>Un dernier test pour la route.</p>
+<figure class="highlight bash"><figcaption><span>test-delete-panda</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ curl http://localhost:8080/api/pandas/550c689a1d61a6904e3315fe -X DELETE</span><br></pre></td></tr></table></figure>
+<p>Voila ! Vous en avez finit avec les bases d’une api. On a maintenant tous les moyens pour gérer un CRUD sur un item spécifique avec notre propre API. Ces techniques devraient être un bon démarrage pour construire quelque chose de plus grand.</p>
+<p>Je rajouterai dans une prochain article une authentification en OAuth2 afin de pouvoir distribuer notre super api. En attendance, je vous laisse avec l’intégralité du server.js</p>
+<figure class="highlight javascript"><figcaption><span>server.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">var</span> express = <span class="built_in">require</span>(<span class="string">'express'</span>)</span><br><span class="line">	, app = express()</span><br><span class="line">	, bodyParser = <span class="built_in">require</span>(<span class="string">'body-parser'</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// Section "Panda Time"</span></span><br><span class="line"><span class="keyword">var</span> mongoose   = <span class="built_in">require</span>(<span class="string">'mongoose'</span>)</span><br><span class="line">	, db = mongoose.connection</span><br><span class="line">	, Panda = <span class="built_in">require</span>(<span class="string">'./app/models/panda'</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// Tentative de connexion à notre bdd</span></span><br><span class="line">mongoose.connect(<span class="string">'mongodb://localhost:27017/api_test'</span>);</span><br><span class="line"><span class="comment">// Verifie le status de la connection</span></span><br><span class="line">db.on(<span class="string">'error'</span>, <span class="function"><span class="keyword">function</span>(<span class="params">err</span>) </span>&#123;</span><br><span class="line">	<span class="built_in">console</span>.error(<span class="string">"La connection a mongo a echoue"</span>);</span><br><span class="line">&#125;);</span><br><span class="line">db.once(<span class="string">'open'</span>, <span class="function"><span class="keyword">function</span> (<span class="params">callback</span>) </span>&#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">'yay ! '</span>)</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">// Section "Middleware"</span></span><br><span class="line"><span class="comment">// decode le contenu d'une requete de type application/x-www-form-urlencoded</span></span><br><span class="line">app.use(bodyParser.urlencoded(&#123; <span class="attr">extended</span>: <span class="literal">true</span> &#125;));</span><br><span class="line"><span class="comment">// decode le contenu d'une requete de type application/json</span></span><br><span class="line">app.use(bodyParser.json());</span><br><span class="line"></span><br><span class="line"><span class="comment">// on mettra notre router ici pour rester simple</span></span><br><span class="line"><span class="comment">// Section "Router"</span></span><br><span class="line"><span class="keyword">var</span> router = express.Router();              </span><br><span class="line"></span><br><span class="line"><span class="comment">// Création d'une uri de test dans notre router</span></span><br><span class="line"><span class="comment">// Associe '/' au json &#123;yolo: 'hey'&#125;</span></span><br><span class="line">router.get(<span class="string">'/'</span>, <span class="function"><span class="keyword">function</span>(<span class="params">req, res</span>) </span>&#123;</span><br><span class="line">    res.json(&#123;</span><br><span class="line">    	yolo: <span class="string">'Hey'</span></span><br><span class="line">    &#125;);   </span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">router.route(<span class="string">'/pandas'</span>)</span><br><span class="line">	<span class="comment">// Ajoute un panda avec le nom renseigné en POST</span></span><br><span class="line">	.post(<span class="function"><span class="keyword">function</span>(<span class="params">req, res, next</span>) </span>&#123;</span><br><span class="line">		<span class="keyword">var</span> panda = <span class="keyword">new</span> Panda();</span><br><span class="line">        panda.nom = req.body.nom;  </span><br><span class="line">        panda.save(<span class="function"><span class="keyword">function</span>(<span class="params">err</span>) </span>&#123;</span><br><span class="line">            res.json(&#123;<span class="attr">success</span>: (err) ? <span class="literal">false</span> : <span class="literal">true</span>&#125;);</span><br><span class="line">        &#125;);       </span><br><span class="line">    &#125;)</span><br><span class="line">    <span class="comment">// Récupère tous les pandas</span></span><br><span class="line">    .get(<span class="function"><span class="keyword">function</span>(<span class="params">req, res, next</span>) </span>&#123;</span><br><span class="line">		Panda.find(<span class="function"><span class="keyword">function</span>(<span class="params">err, pandas</span>) </span>&#123;</span><br><span class="line">            <span class="keyword">if</span> (err) res.send(err);</span><br><span class="line">            res.json(pandas);</span><br><span class="line">        &#125;);        </span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">router.route(<span class="string">'/pandas/:panda_id'</span>)</span><br><span class="line">    <span class="comment">// Récupère un panda donné</span></span><br><span class="line">    .get(<span class="function"><span class="keyword">function</span>(<span class="params">req, res, next</span>) </span>&#123;</span><br><span class="line">        Panda.findById(req.params.panda_id, <span class="function"><span class="keyword">function</span>(<span class="params">err, panda</span>) </span>&#123;</span><br><span class="line">            <span class="keyword">if</span> (err) res.send(err);</span><br><span class="line">            res.json(panda);</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;)</span><br><span class="line">    <span class="comment">// Modifie le nom d'un panda</span></span><br><span class="line">    .put(<span class="function"><span class="keyword">function</span>(<span class="params">req, res</span>) </span>&#123;</span><br><span class="line">        Panda.findById(req.params.panda_id, <span class="function"><span class="keyword">function</span>(<span class="params">err, panda</span>) </span>&#123;</span><br><span class="line">            <span class="keyword">if</span> (err) res.send(err);</span><br><span class="line"></span><br><span class="line">            panda.nom = req.body.nom;  </span><br><span class="line">            panda.save(<span class="function"><span class="keyword">function</span>(<span class="params">err</span>) </span>&#123;</span><br><span class="line">               res.json(&#123;<span class="attr">success</span>: (err) ? <span class="literal">false</span> : <span class="literal">true</span>&#125;);</span><br><span class="line">            &#125;);</span><br><span class="line"></span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;)</span><br><span class="line">    <span class="comment">// Supprime un panda</span></span><br><span class="line">   .delete(<span class="function"><span class="keyword">function</span>(<span class="params">req, res, next</span>) </span>&#123;</span><br><span class="line">        Panda.remove(&#123; <span class="attr">_id</span>: req.params.panda_id &#125;, <span class="function"><span class="keyword">function</span>(<span class="params">err, panda</span>) </span>&#123;</span><br><span class="line">			res.json(&#123;<span class="attr">success</span>: (err) ? <span class="literal">false</span> : <span class="literal">true</span>&#125;);</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// Toutes les uris présentes dans notre router seront préfixées par '/api'</span></span><br><span class="line">app.use(<span class="string">'/api'</span>, router);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// on demarre le serveur</span></span><br><span class="line"><span class="keyword">var</span> port = process.env.PORT || <span class="number">8080</span>;        </span><br><span class="line">app.listen(port, <span class="literal">null</span>, <span class="literal">null</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">	<span class="built_in">console</span>.log(<span class="string">'Demarrage du serveur sur le port'</span>, port);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+        
+
+      </div>
+    
+
+    
+      <div class="post-footer">
+        
+          <div class="post-tags">
+            
+              <a href="/tags/node/">
+                #node
+              </a>
+            
+              <a href="/tags/express/">
+                #express
+              </a>
+            
+              <a href="/tags/Mongo/">
+                #Mongo
+              </a>
+            
+          </div>
+        
+
+        
+
+        
+      </div>
+    
+  </div>
+
+
+
+  
+    
+  
+
+          </div>
+
+          
+        </div>
+
+        
+<div class="sidebar-toggle">
+  <div class="sidebar-toggle-line-wrap">
+    <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+    <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+    <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+  </div>
+</div>
+
+<div id="sidebar" class="sidebar">
+  <div class="sidebar-inner">
+
+    
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-overview" data-target="site-overview">
+          Ensemble
+        </li>
+        <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc">
+          Table Des Matières
+        </li>
+      </ul>
+    
+
+    <div class="site-overview">
+      <div class="site-author motion-element">
+        <img class="site-author-image" src="/images/default_avatar.jpg" alt="Karlito" />
+        <p class="site-author-name">Karlito</p>
+      </div>
+      <p class="site-description motion-element">Node et Javascript en pratique: tutoriels, exemple et experimentation.</p>
+      <div class="site-state motion-element">
+        <div class="site-state-item site-state-posts">
+          <span class="site-state-item-count">5</span>
+          <span class="site-state-item-name">articles</span>
+        </div>
+        <div class="site-state-item site-state-tags">
+            <span class="site-state-item-count">8</span>
+            <span class="site-state-item-name">tags</span>
+        </div>
+        <div class="site-state-item site-state-pages">
+            <span class="site-state-item-count">2</span>
+            <span class="site-state-item-name">pages</span>
+        </div>
+      </div>
+
+      
+
+      <div class="social-info motion-element">
+        
+          
+            <span class="soclial-item">
+              <a href="https://github.com/karlito40">GITHUB</a>
+            </span>
+          
+            <span class="soclial-item">
+              <a href="https://twitter.com/karlito40">TWITTER</a>
+            </span>
+          
+        
+      </div>
+
+    </div>
+
+    
+      <div class="post-toc sidebar-panel-active">
+        <ol class="motion-element"><li class="motion-element-item motion-element-level-3"><a class="motion-element-link" href="#Fondation"><span class="motion-element-number">1.</span> <span class="motion-element-text">Fondation</span></a></li><li class="motion-element-item motion-element-level-3"><a class="motion-element-link" href="#Router"><span class="motion-element-number">2.</span> <span class="motion-element-text">Router</span></a></li><li class="motion-element-item motion-element-level-3"><a class="motion-element-link" href="#Panda-time"><span class="motion-element-number">3.</span> <span class="motion-element-text">Panda time</span></a></li><li class="motion-element-item motion-element-level-3"><a class="motion-element-link" href="#Api"><span class="motion-element-number">4.</span> <span class="motion-element-text">Api</span></a></li></ol>
+      </div>
+    
+  </div>
+</div>
+
+
+      </div>
+    </div>
+
+    <div id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">
+  
+  &copy; &nbsp; 
+  2018
+  <span class="with-love">
+    <i class="icon-heart"></i>
+  </span>
+  <span class="author">Karlito</span>
+</div>
+
+<!--
+<div class="powered-by">
+  Powered by <a class="theme-link" href="http://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Thème - <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">NexT</a>
+</div>
+-->
+
+
+
+
+
+      </div>
+    </div>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/dist/jquery.min.js?v=0.3.0rc1"></script>
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript">
+    $(document).ready(function() {
+      $(".fancybox").fancybox();
+    });
+  </script>
+
+
+
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      var body = $('body');
+      var isSidebarVisible = false;
+      var sidebarToggle = $('.sidebar-toggle');
+      var sidebarToggleLine1st = $('.sidebar-toggle-line-first')
+      var sidebarToggleLine2nd = $('.sidebar-toggle-line-middle');
+      var sidebarToggleLine3rd = $('.sidebar-toggle-line-last');
+      var sidebar = $('.sidebar');
+
+      var sidebarToogleLineStatusInit = {width: '100%', opacity: 1, left: 0, rotateZ: 0, top: 0};
+
+      var sidebarToggleLine1stStatusInit = sidebarToogleLineStatusInit;
+      var sidebarToggleLine1stStatusArrow = {width: '50%', rotateZ: '-45deg', top: '2px'};
+      var sidebarToogleLine1stStatusClose = {width: '100%', rotateZ: '-45deg', top: '5px'};
+
+      var sidebarToggleLine2ndStatusInit = sidebarToogleLineStatusInit;
+      var sidebarToggleLine2ndStatusArrow = {width: '90%'};
+      var sidebarToogleLine2ndStatusClose = {opacity: 0};
+
+      var sidebarToggleLine3rdStatusInit = sidebarToogleLineStatusInit;
+      var sidebarToggleLine3rdStatusArrow = {width: '50%', rotateZ: '45deg', top: '-2px'};
+      var sidebarToogleLine3rdStatusClose = {width: '100%', rotateZ: '45deg', top: '-5px'};
+
+      sidebatToggleMotion();
+      postsListMotion();
+      backToTopMotion();
+
+      function sidebarContentMotion () {
+        $('.sidebar .motion-element').velocity(
+          'transition.slideRightIn',
+          {stagger: 50, drag: true}
+        );
+      }
+
+
+      function backToTopMotion () {
+        var b2top = $('.back-to-top');
+        b2top.on('click', function () {
+          body.velocity('scroll');
+        });
+      }
+
+      function sidebarShowMotion () {
+        var sidebarDisplayDuration = 300;
+        var sidebarWidth = '320px';
+
+        sidebarToggleLine1st.velocity(sidebarToogleLine1stStatusClose);
+        sidebarToggleLine2nd.velocity(sidebarToogleLine2ndStatusClose);
+        sidebarToggleLine3rd.velocity(sidebarToogleLine3rdStatusClose);
+
+        sidebar.velocity({width: sidebarWidth}, sidebarDisplayDuration);
+        isDesktop() && body.velocity({paddingRight: sidebarWidth}, sidebarDisplayDuration);
+        sidebarContentMotion();
+      }
+
+      function sidebarHideMotion () {
+        isDesktop() && body.velocity({paddingRight: 0});
+        sidebar.velocity('reverse');
+
+        sidebarToggleLine1st.velocity(sidebarToggleLine1stStatusInit);
+        sidebarToggleLine2nd.velocity(sidebarToggleLine2ndStatusInit);
+        sidebarToggleLine3rd.velocity(sidebarToggleLine3rdStatusInit);
+      };
+
+      function postsListMotion () {
+        $('.post').velocity('transition.slideDownIn', {stagger: 300, drag: true});
+      }
+
+      function sidebatToggleMotion () {
+        sidebarToggle.on('click', function () {
+          isSidebarVisible ? sidebarHideMotion() : sidebarShowMotion();
+          isSidebarVisible = !isSidebarVisible;
+        });
+        sidebarToggle.hover(function () {
+          if (isSidebarVisible) {return}
+          sidebarToggleLine1st.velocity('stop').velocity(sidebarToggleLine1stStatusArrow);
+          sidebarToggleLine2nd.velocity('stop').velocity(sidebarToggleLine2ndStatusArrow);
+          sidebarToggleLine3rd.velocity('stop').velocity(sidebarToggleLine3rdStatusArrow);
+        }, function () {
+          if (isSidebarVisible) {return}
+          sidebarToggleLine1st.velocity('stop').velocity(sidebarToggleLine1stStatusInit);
+          sidebarToggleLine2nd.velocity('stop').velocity(sidebarToggleLine2ndStatusInit);
+          sidebarToggleLine3rd.velocity('stop').velocity(sidebarToggleLine3rdStatusInit);
+        });
+      }
+
+      function isDesktop () {
+        return screen.width > 991;
+      }
+
+      function isTablet () {
+        return screen.width < 992 && screen.width > 767;
+      }
+
+      function isMobile () {
+        return screen.width < 767;
+      }
+    });
+  </script>
+
+  
+
+  
+  
+    <script type="text/javascript">
+      $(document).ready(function () {
+        var html = $('html');
+
+        $('.sidebar-nav li').on('click', function () {
+          var item = $(this);
+          var activeTabClassName = 'sidebar-nav-active';
+          var activePanelClassName = 'sidebar-panel-active';
+          if (item.hasClass(activeTabClassName)) {
+            return;
+          }
+
+          var currentTarget = $('.' + activePanelClassName);
+          var target = $('.' + item.data('target'));
+
+          $.Velocity
+            .animate(currentTarget, 'transition.slideUpOut', 200)
+            .then(function () {
+              target
+              .velocity('stop')
+              .velocity('transition.slideDownIn', 200)
+              .addClass(activePanelClassName);
+            });
+
+          item.siblings().removeClass(activeTabClassName);
+          item.addClass(activeTabClassName);
+        });
+
+        $('.post-toc a').on('click', function (e) {
+          e.preventDefault();
+          var offset = $(this.getAttribute('href')).offset().top;
+          html.velocity('stop').velocity('scroll', {
+            offset: offset  + 'px',
+            mobileHA: false
+          });
+        });
+      });
+    </script>
+  
+
+
+
+  
+  
+
+  
+
+
+  
+  <script type="text/javascript">
+    (function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=
+        function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;
+      e=o.createElement(i);r=o.getElementsByTagName(i)[0];
+      e.src='//www.google-analytics.com/analytics.js';
+      r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));
+    ga('create','UA-60007492-1');ga('send','pageview');
+  </script>
+
+</body>
+</html>

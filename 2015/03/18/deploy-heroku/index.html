@@ -1,0 +1,496 @@
+<!doctype html>
+<html class="theme-next use-motion">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.3.0rc1"/>
+
+
+    <meta name="description" content="Node et Javascript en pratique: tutoriels, exemple et experimentation." />
+
+
+
+    <meta name="keywords" content="Javascript, Node, Mongo, PHP, Go, Git, Benchmark, Developpeur web" />
+
+
+
+
+
+    <link rel="shorticon icon" type="image/x-icon" href="/favicon.ico?v=0.3.0rc1" />
+
+
+<style>
+body{
+	word-spacing:2px;
+}
+
+</style>
+
+
+  <title> Heroku, déploiement d'hexo // Un blog... </title>
+</head>
+
+<body>
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <div id="header" class="header">
+      <div class="header-inner">
+        <h1 class="site-meta">
+    <a href="/" class="brand">
+        <span class="logo">
+          <i class="icon-logo"></i>
+        </span>
+        <span class="site-title">Karlidev</span>
+    </a>
+</h1>
+
+
+  <ul id="menu" class="menu">
+    
+      
+      <li class="menu-item menu-item-home">
+        <a href="/">
+          <i class="menu-item-icon icon-home"></i> <br />
+          Accueil
+        </a>
+      </li>
+    
+      
+      <li class="menu-item menu-item-archives">
+        <a href="/archives">
+          <i class="menu-item-icon icon-archives"></i> <br />
+          Archives
+        </a>
+      </li>
+    
+      
+      <li class="menu-item menu-item-tags">
+        <a href="/tags">
+          <i class="menu-item-icon icon-tags"></i> <br />
+          Tags
+        </a>
+      </li>
+    
+  </ul>
+
+
+      </div>
+    </div>
+
+    <div id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content">
+          
+            
+          
+
+          <div id="posts" class="posts-expand">
+            
+  
+
+  <div class="post post-type-normal ">
+    <div class="post-header">
+
+      
+      
+        <h1 class="post-title">
+          
+          
+            
+              Heroku, déploiement d'hexo
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+          <span class="post-time">
+            
+              Posté le 18/03/2015
+            
+          </span>
+        
+          
+        
+      </div>
+    </div>
+
+    
+      <div class="post-body">
+
+        
+        
+
+        
+          <p>Heroku est connu pour faciliter le déploiement d’application. On peut désormais se concenter uniquement sur les choses qui nous intéressent au lieu d’avoir à configurer nos serveurs et d’en prévoir la scalabilité.</p>
+<p>Aujourd’hui, nous allons voir comment déployer notre blog sans le moindre frais et de manière scalable en quelques secondes.</p>
+<p><img src="/images/heroku-logo.jpg"><br><a id="more"></a></p>
+<h3 id="Bien-commencer"><a href="#Bien-commencer" class="headerlink" title="Bien commencer"></a>Bien commencer</h3><p>Tout d’abord allez sur <a href="https://www.heroku.com" target="_blank" rel="noopener">Heroku</a> et ouvrez votre compte gratuit. Avant d’aller plus loin, assurez vous d’avoir <strong>node</strong>, <strong>npm</strong>, <strong>git</strong> et <strong>l’utilitaire heroku</strong> sur votre machine.</p>
+<p>Sous debian, l’utilitaire heroku se récupère ainsi:</p>
+<figure class="highlight bash"><figcaption><span>install heroku</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ wget -qO- https://toolbelt.heroku.com/install-ubuntu.sh | sh</span><br></pre></td></tr></table></figure>
+<p>Vous devriez maintenant être capable d’accéder à la ligne de commande d’heroku.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ heroku</span><br></pre></td></tr></table></figure>
+<p><img src="/images/heroku-cmd.png"></p>
+<p>Il ne vous reste plus qu’à vous authentifier pour la première et dernière fois.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ heroku login</span><br></pre></td></tr></table></figure>
+<h3 id="Git-amp-Heroku"><a href="#Git-amp-Heroku" class="headerlink" title="Git &amp; Heroku"></a>Git &amp; Heroku</h3><p>L’un des points forts d’Heroku est d’être parfaitement intégré à git ce qui va nous faciliter la vie. Un push et nos changement sont en prod !</p>
+<p>Nous allons maintenant essayer de déployer notre blog fraichement créée. Placez vous à la racine de votre blog et executez la ligne suivante:</p>
+<figure class="highlight bash"><figcaption><span>init-repo</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ git init</span><br></pre></td></tr></table></figure>
+<p>Profitez en pour ajouter un repo externe.</p>
+<figure class="highlight plain"><figcaption><span>add-remote</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ git remote add origin https://github.com/karlito40/hexo-tuto.git</span><br></pre></td></tr></table></figure>
+<p>Dans le même temps, on va créer un autre repo externe appelé “heroku”. Tout ça est généré automatiquement par heroku grace à la commande suivante:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ heroku create hexo-tuto</span><br></pre></td></tr></table></figure>
+<p>L’appli hexo-tuto devrait alors apparaitre dans votre administration heroku et un nouveau repo externe a du être ajouté à votre code.</p>
+<figure class="highlight bash"><figcaption><span>check-remote</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ git remote -v</span><br></pre></td></tr></table></figure>
+<h3 id="Particularite-d’hexo"><a href="#Particularite-d’hexo" class="headerlink" title="Particularité d’hexo"></a>Particularité d’hexo</h3><p>Je vous déconseille fortement d’utiliser la fonctionnalité d’hexo censé faciliter le déploiement (hexo deploy) celle ci étant particulièrement buggé lorsqu’il s’agit de faire des mises à jours. Le plus simple reste d’instancier soit-même le serveur. Pour cela, nous allons créer un nouveau fichier <strong>app.js</strong> et profiter de <strong>connect</strong> pour démarrer le serveur.</p>
+<figure class="highlight javascript"><figcaption><span>app.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> connect = <span class="built_in">require</span>(<span class="string">'connect'</span>),</span><br><span class="line">  app = connect.createServer(),</span><br><span class="line">  port = process.env.PORT || <span class="number">4000</span>;</span><br><span class="line"></span><br><span class="line">app.use(connect.static(__dirname + <span class="string">'/public'</span>));</span><br><span class="line">app.use(connect.compress());</span><br><span class="line"></span><br><span class="line">app.listen(port, <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">'Hexo is running on port %d'</span>, port);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>On pense à ajouter <strong>“connect”:”2.x”</strong> dans les dépendances de notre <strong>package.json</strong> et à générer le contenu static d’hexo avant de pusher sur heroku.</p>
+<figure class="highlight bash"><figcaption><span>generate-static-files</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
+<p>Le <strong>gitignore</strong> doit également être modifié puisqu’on ne se sert pas du built-in deploy.</p>
+<figure class="highlight plain"><figcaption><span>.gitignore</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">.DS_Store</span><br><span class="line">Thumbs.db</span><br><span class="line">debug.log</span><br><span class="line">node_modules/</span><br><span class="line">.deploy/</span><br></pre></td></tr></table></figure>
+<h3 id="Deployer-votre-app"><a href="#Deployer-votre-app" class="headerlink" title="Déployer votre app"></a>Déployer votre app</h3><p>Par defaut, heroku ira chercher la commande d’instanciation de notre application dans <strong>package.json</strong> section <strong>scripts</strong> index <strong>start</strong>. On peut également définir cette commande particulière dans un fichier <strong>Procfile</strong> spécialement dédié à heroku. De ce fait, si vous n’avez pas d’index <strong>start</strong> vous pouvez tout à fait définir un Procfile chargé d’executer notre app:</p>
+<figure class="highlight bash"><figcaption><span>Procfile</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">web: node app</span><br></pre></td></tr></table></figure>
+<p>Voila, notre déploiement est enfin prêt ! Il nous reste plus qu’à pusher notre app sur le repository d’heroku:</p>
+<figure class="highlight bash"><figcaption><span>deploy-to-heroku</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ git add .</span><br><span class="line">$ git commit -m <span class="string">"Deploy"</span></span><br><span class="line">$ git push heroku master</span><br></pre></td></tr></table></figure>
+<p>Admirez le travail: <a href="https://hexo-tuto2.herokuapp.com/" target="_blank" rel="noopener">https://hexo-tuto2.herokuapp.com/</a>.</p>
+<h2 id="Eviter-l’endormissement-des-instances-gratuites"><a href="#Eviter-l’endormissement-des-instances-gratuites" class="headerlink" title="Eviter l’endormissement des instances gratuites"></a>Eviter l’endormissement des instances gratuites</h2><p>Vous avez peut être remarqué que votre site met un certains temps avant de démarrer. Pas de panique, c’est normal. Heroku a tendance à endormir les instances gratuites au bout d’une dizaine de minutes si trop peu de requêtes sont enregistrées. Par ailleurs, ce système peut facilement être contourné à l’aide de <a href="http://kaffeine.herokuapp.com/" target="_blank" rel="noopener">Kaffeine</a> qui va se charger de pinger votre instance toutes les X minutes :)</p>
+
+        
+
+      </div>
+    
+
+    
+      <div class="post-footer">
+        
+          <div class="post-tags">
+            
+              <a href="/tags/Heroku/">
+                #Heroku
+              </a>
+            
+              <a href="/tags/Git/">
+                #Git
+              </a>
+            
+          </div>
+        
+
+        
+
+        
+      </div>
+    
+  </div>
+
+
+
+  
+    
+  
+
+          </div>
+
+          
+        </div>
+
+        
+<div class="sidebar-toggle">
+  <div class="sidebar-toggle-line-wrap">
+    <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+    <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+    <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+  </div>
+</div>
+
+<div id="sidebar" class="sidebar">
+  <div class="sidebar-inner">
+
+    
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-overview" data-target="site-overview">
+          Ensemble
+        </li>
+        <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc">
+          Table Des Matières
+        </li>
+      </ul>
+    
+
+    <div class="site-overview">
+      <div class="site-author motion-element">
+        <img class="site-author-image" src="/images/default_avatar.jpg" alt="Karlito" />
+        <p class="site-author-name">Karlito</p>
+      </div>
+      <p class="site-description motion-element">Node et Javascript en pratique: tutoriels, exemple et experimentation.</p>
+      <div class="site-state motion-element">
+        <div class="site-state-item site-state-posts">
+          <span class="site-state-item-count">5</span>
+          <span class="site-state-item-name">articles</span>
+        </div>
+        <div class="site-state-item site-state-tags">
+            <span class="site-state-item-count">8</span>
+            <span class="site-state-item-name">tags</span>
+        </div>
+        <div class="site-state-item site-state-pages">
+            <span class="site-state-item-count">2</span>
+            <span class="site-state-item-name">pages</span>
+        </div>
+      </div>
+
+      
+
+      <div class="social-info motion-element">
+        
+          
+            <span class="soclial-item">
+              <a href="https://github.com/karlito40">GITHUB</a>
+            </span>
+          
+            <span class="soclial-item">
+              <a href="https://twitter.com/karlito40">TWITTER</a>
+            </span>
+          
+        
+      </div>
+
+    </div>
+
+    
+      <div class="post-toc sidebar-panel-active">
+        <ol class="motion-element"><li class="motion-element-item motion-element-level-3"><a class="motion-element-link" href="#Bien-commencer"><span class="motion-element-number">1.</span> <span class="motion-element-text">Bien commencer</span></a></li><li class="motion-element-item motion-element-level-3"><a class="motion-element-link" href="#Git-amp-Heroku"><span class="motion-element-number">2.</span> <span class="motion-element-text">Git &amp; Heroku</span></a></li><li class="motion-element-item motion-element-level-3"><a class="motion-element-link" href="#Particularite-d’hexo"><span class="motion-element-number">3.</span> <span class="motion-element-text">Particularité d’hexo</span></a></li><li class="motion-element-item motion-element-level-3"><a class="motion-element-link" href="#Deployer-votre-app"><span class="motion-element-number">4.</span> <span class="motion-element-text">Déployer votre app</span></a></li></ol></li><li class="motion-element-item motion-element-level-2"><a class="motion-element-link" href="#Eviter-l’endormissement-des-instances-gratuites"><span class="motion-element-number"></span> <span class="motion-element-text">Eviter l’endormissement des instances gratuites</span></a>
+      </div>
+    
+  </div>
+</div>
+
+
+      </div>
+    </div>
+
+    <div id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">
+  
+  &copy; &nbsp; 
+  2018
+  <span class="with-love">
+    <i class="icon-heart"></i>
+  </span>
+  <span class="author">Karlito</span>
+</div>
+
+<!--
+<div class="powered-by">
+  Powered by <a class="theme-link" href="http://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Thème - <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">NexT</a>
+</div>
+-->
+
+
+
+
+
+      </div>
+    </div>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/dist/jquery.min.js?v=0.3.0rc1"></script>
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript">
+    $(document).ready(function() {
+      $(".fancybox").fancybox();
+    });
+  </script>
+
+
+
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      var body = $('body');
+      var isSidebarVisible = false;
+      var sidebarToggle = $('.sidebar-toggle');
+      var sidebarToggleLine1st = $('.sidebar-toggle-line-first')
+      var sidebarToggleLine2nd = $('.sidebar-toggle-line-middle');
+      var sidebarToggleLine3rd = $('.sidebar-toggle-line-last');
+      var sidebar = $('.sidebar');
+
+      var sidebarToogleLineStatusInit = {width: '100%', opacity: 1, left: 0, rotateZ: 0, top: 0};
+
+      var sidebarToggleLine1stStatusInit = sidebarToogleLineStatusInit;
+      var sidebarToggleLine1stStatusArrow = {width: '50%', rotateZ: '-45deg', top: '2px'};
+      var sidebarToogleLine1stStatusClose = {width: '100%', rotateZ: '-45deg', top: '5px'};
+
+      var sidebarToggleLine2ndStatusInit = sidebarToogleLineStatusInit;
+      var sidebarToggleLine2ndStatusArrow = {width: '90%'};
+      var sidebarToogleLine2ndStatusClose = {opacity: 0};
+
+      var sidebarToggleLine3rdStatusInit = sidebarToogleLineStatusInit;
+      var sidebarToggleLine3rdStatusArrow = {width: '50%', rotateZ: '45deg', top: '-2px'};
+      var sidebarToogleLine3rdStatusClose = {width: '100%', rotateZ: '45deg', top: '-5px'};
+
+      sidebatToggleMotion();
+      postsListMotion();
+      backToTopMotion();
+
+      function sidebarContentMotion () {
+        $('.sidebar .motion-element').velocity(
+          'transition.slideRightIn',
+          {stagger: 50, drag: true}
+        );
+      }
+
+
+      function backToTopMotion () {
+        var b2top = $('.back-to-top');
+        b2top.on('click', function () {
+          body.velocity('scroll');
+        });
+      }
+
+      function sidebarShowMotion () {
+        var sidebarDisplayDuration = 300;
+        var sidebarWidth = '320px';
+
+        sidebarToggleLine1st.velocity(sidebarToogleLine1stStatusClose);
+        sidebarToggleLine2nd.velocity(sidebarToogleLine2ndStatusClose);
+        sidebarToggleLine3rd.velocity(sidebarToogleLine3rdStatusClose);
+
+        sidebar.velocity({width: sidebarWidth}, sidebarDisplayDuration);
+        isDesktop() && body.velocity({paddingRight: sidebarWidth}, sidebarDisplayDuration);
+        sidebarContentMotion();
+      }
+
+      function sidebarHideMotion () {
+        isDesktop() && body.velocity({paddingRight: 0});
+        sidebar.velocity('reverse');
+
+        sidebarToggleLine1st.velocity(sidebarToggleLine1stStatusInit);
+        sidebarToggleLine2nd.velocity(sidebarToggleLine2ndStatusInit);
+        sidebarToggleLine3rd.velocity(sidebarToggleLine3rdStatusInit);
+      };
+
+      function postsListMotion () {
+        $('.post').velocity('transition.slideDownIn', {stagger: 300, drag: true});
+      }
+
+      function sidebatToggleMotion () {
+        sidebarToggle.on('click', function () {
+          isSidebarVisible ? sidebarHideMotion() : sidebarShowMotion();
+          isSidebarVisible = !isSidebarVisible;
+        });
+        sidebarToggle.hover(function () {
+          if (isSidebarVisible) {return}
+          sidebarToggleLine1st.velocity('stop').velocity(sidebarToggleLine1stStatusArrow);
+          sidebarToggleLine2nd.velocity('stop').velocity(sidebarToggleLine2ndStatusArrow);
+          sidebarToggleLine3rd.velocity('stop').velocity(sidebarToggleLine3rdStatusArrow);
+        }, function () {
+          if (isSidebarVisible) {return}
+          sidebarToggleLine1st.velocity('stop').velocity(sidebarToggleLine1stStatusInit);
+          sidebarToggleLine2nd.velocity('stop').velocity(sidebarToggleLine2ndStatusInit);
+          sidebarToggleLine3rd.velocity('stop').velocity(sidebarToggleLine3rdStatusInit);
+        });
+      }
+
+      function isDesktop () {
+        return screen.width > 991;
+      }
+
+      function isTablet () {
+        return screen.width < 992 && screen.width > 767;
+      }
+
+      function isMobile () {
+        return screen.width < 767;
+      }
+    });
+  </script>
+
+  
+
+  
+  
+    <script type="text/javascript">
+      $(document).ready(function () {
+        var html = $('html');
+
+        $('.sidebar-nav li').on('click', function () {
+          var item = $(this);
+          var activeTabClassName = 'sidebar-nav-active';
+          var activePanelClassName = 'sidebar-panel-active';
+          if (item.hasClass(activeTabClassName)) {
+            return;
+          }
+
+          var currentTarget = $('.' + activePanelClassName);
+          var target = $('.' + item.data('target'));
+
+          $.Velocity
+            .animate(currentTarget, 'transition.slideUpOut', 200)
+            .then(function () {
+              target
+              .velocity('stop')
+              .velocity('transition.slideDownIn', 200)
+              .addClass(activePanelClassName);
+            });
+
+          item.siblings().removeClass(activeTabClassName);
+          item.addClass(activeTabClassName);
+        });
+
+        $('.post-toc a').on('click', function (e) {
+          e.preventDefault();
+          var offset = $(this.getAttribute('href')).offset().top;
+          html.velocity('stop').velocity('scroll', {
+            offset: offset  + 'px',
+            mobileHA: false
+          });
+        });
+      });
+    </script>
+  
+
+
+
+  
+  
+
+  
+
+
+  
+  <script type="text/javascript">
+    (function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=
+        function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;
+      e=o.createElement(i);r=o.getElementsByTagName(i)[0];
+      e.src='//www.google-analytics.com/analytics.js';
+      r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));
+    ga('create','UA-60007492-1');ga('send','pageview');
+  </script>
+
+</body>
+</html>
