@@ -1,5 +1,5 @@
 ---
-title: Hexo et Github Pages
+title: Github Pages, déploiement d'hexo
 date: 2018-09-13 16:10:52
 tags:
 - Hexo
@@ -40,7 +40,13 @@ deploy:
   branch: master # ou gh-pages dans le cas d'une page projet
 ```
 
-Lancement du déploiement
+Créer un fichier CNAME dans `/source` pour garder le nom de domaine personnnalisé.
+
+``` bash
+$ echo blog.karlidev.fr > source/CNAME
+```
+
+Déploiement
 
 ``` bash
 $ hexo clean && hexo generate && hexo deploy
