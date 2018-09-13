@@ -9,15 +9,17 @@ Eh non je ne suis pas encore mort ! Pour feter la fin de l'été je me suis dit 
 temps de reprendre en main ce bon vieux blog. Bon, ça ce n'est pas fait sans malheur.
 
 Tout d'abord il m'a fallut batailler pour mettre à jour Hexo. Plus rien ne marchait. J'ai donc
-opté pour la solution radicale: repartir de zéro et corriger le thème à la main. Après quelques péripéties, j'ai décidé de ne pas m'étendre sur le jeu. Je vais plutôt aborder le déploiement sous Github Pages avec nom de domaine personnalisé.
+opté pour la solution radicale: repartir de zéro et corriger le thème à la main. Ca a été long et fastidieux mais voila c'est fait.
 
-Il existe deux types de sites disponibles selon les besoins: **utilisateur** ou dédié à un **projet**.
+Bref, attelons nous au sujet principal: Github Pages.
 
-Une page Github **utilisateur** aura pour lien **https://`pseudo-github`.github.io**. Elle ne peut être créée qu'avec un repository nommé **`pseudo-github`.github.io** comme je l'ai fait avec le mien [repository:karlito40.github.io](https://github.com/karlito40/karlito40.github.io) accessible sous [https://karlito40.github.io](https://karlito40.github.io). Le site ne sera lu qu'à partir de la branche `master`.
+Github différencie deux types de sites. L'un tourné autour de l'**organisatation** détenant un ensemble de repositories. L'autre, **projet**, est sensé décrire un repository spécifique.
 
-Une page **projet** sera accessible sous **https://`pseudo-github`.github.io/`nom-du-repository-cible`**. Le site ira chercher le repository donné dans l'url puis analysera la branche `master` ou son dossier `/docs`. Dans le cas ou ces conditions ne sont pas remplis, Github consultera la branche `gh-pages` du projet.
+Une page Github d'**organisatation** aura pour lien **https://`organisation`.github.io**. Elle ne peut être créée qu'à partir d'un repository nommé **`organisation`.github.io** comme je l'ai fait avec le mien [repository:karlito40.github.io](https://github.com/karlito40/karlito40.github.io) accessible sous [https://karlito40.github.io](https://karlito40.github.io). Le site ne peut être placé que sur la branche `master` du repo.
 
-Ne reste plus qu'à définir un nom de domaine personnalisé. Pour cela, il suffit d'aller dans le repository en question sous la rubrique **settings** puis remplir la section **Custom domain** avec par exemple blog.karlidev.fr. Ensuite, rendez vous sur votre hebergeur de nom de domaine. Ajoutez un paramètre CNAME pointant vers **`pseudo-github`.github.io** tout en oubliant pas d'activer un certificat SSL sur votre domaine.
+Une page **projet** est accessible sous l'adresse suivante **https://`organisation`.github.io/`nom-du-repository-cible`**. Le site parcourt alors le repository cible pour analyser la branche `master` ou son dossier `/docs`. Dans le cas ou ces conditions ne sont pas remplis, Github consultera la branche `gh-pages` du projet.
+
+Ne reste plus qu'à définir un nom de domaine personnalisé. Pour cela, il suffit d'aller dans le repository en question sous la rubrique **settings** puis remplir la section **Custom domain** avec par exemple blog.karlidev.fr. Ensuite, rendez vous sur votre hebergeur de nom de domaine. Ajoutez un paramètre CNAME pointant vers **`organisation`.github.io** tout en oubliant pas d'activer un certificat SSL sur votre domaine.
 
 ### Etapes à suivre pour hexo
 
@@ -31,7 +33,6 @@ Configuration du site
 
 ``` yml
 url: https://blog.karlidev.fr # votre nom de domaine customisé
-                              # ou https://pseudo-github.github.io/
 
 
 deploy:
