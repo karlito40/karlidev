@@ -111,6 +111,85 @@ body{
           
           
             
+              <a class="post-title-link" href="/2018/09/13/reprise-du-blog/">
+                Hexo et Github Pages
+              </a>
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+          <span class="post-time">
+            
+              Posté le 13/09/2018
+            
+          </span>
+        
+          
+        
+      </div>
+    </div>
+
+    
+      <div class="post-body">
+
+        
+        
+
+        
+          <p>Eh non je ne suis pas encore mort ! Pour feter la fin de l’été je me suis dit qu’il était<br>temps de reprendre en main ce bon vieux blog. Bon, ça ce n’est pas fait sans malheur.</p>
+<p>Tout d’abord il m’a fallut batailler pour mettre à jour Hexo. Plus rien ne marchait. J’ai donc<br>opté pour la solution radicale: repartir de zéro et corriger le thème à la main. Après quelques péripéties, j’ai décidé de ne pas m’étendre sur le jeu. Je vais plutôt aborder le déploiement sous Github Pages avec nom de domaine personnalisé.</p>
+<p>Il existe deux types de sites disponibles selon les besoins: <strong>utilisateur</strong> ou dédié à un <strong>projet</strong>.</p>
+<p>Une page Github <strong>utilisateur</strong> aura pour lien <strong>https://<code>pseudo-github</code>.github.io</strong>. Elle ne peut être créée qu’avec un repository nommé <strong><code>pseudo-github</code>.github.io</strong> comme je l’ai fait avec le mien <a href="https://github.com/karlito40/karlito40.github.io" target="_blank" rel="noopener">repository:karlito40.github.io</a> accessible sous <a href="https://karlito40.github.io" target="_blank" rel="noopener">https://karlito40.github.io</a>. Le site ne sera lu qu’à partir de la branche <code>master</code>.</p>
+<p>Une page <strong>projet</strong> sera accessible sous <strong>https://<code>pseudo-github</code>.github.io/<code>nom-du-repository-cible</code></strong>. Le site ira chercher le repository donné dans l’url puis analysera la branche <code>master</code> ou son dossier <code>/docs</code>. Dans le cas ou ces conditions ne sont pas remplis, Github consultera la branche <code>gh-pages</code> du projet.</p>
+<p>Ne reste plus qu’à définir un nom de domaine personnalisé. Pour cela, il suffit d’aller dans le repository en question sous la rubrique <strong>settings</strong> puis remplir la section <strong>Custom domain</strong> avec par exemple blog.karlidev.fr. Ensuite, rendez vous sur votre hebergeur de nom de domaine. Ajoutez un paramètre CNAME pointant vers <strong><code>pseudo-github</code>.github.io</strong> tout en oubliant pas d’activer un certificat SSL sur votre domaine.</p>
+<h3 id="Etapes-a-suivre-pour-hexo"><a href="#Etapes-a-suivre-pour-hexo" class="headerlink" title="Etapes à suivre pour hexo"></a>Etapes à suivre pour hexo</h3><p>Installez le plugin de déploiement Github page</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ npm i hexo-deployer-git --save</span><br></pre></td></tr></table></figure>
+<p>Configuration du site</p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">url:</span> <span class="attr">https://blog.karlidev.fr</span> <span class="comment"># votre nom de domaine customisé</span></span><br><span class="line">                              <span class="comment"># ou https://pseudo-github.github.io/</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="attr">deploy:</span></span><br><span class="line"><span class="attr">  type:</span> <span class="string">git</span></span><br><span class="line"><span class="attr">  repo:</span> <span class="attr">https://github.com/karlito40/karlito40.github.io.git</span> <span class="comment"># à remplacer par le votre</span></span><br><span class="line"><span class="attr">  branch:</span> <span class="string">master</span> <span class="comment"># ou gh-pages dans le cas d'une page projet</span></span><br></pre></td></tr></table></figure>
+<p>Lancement du déploiement</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo clean &amp;&amp; hexo generate &amp;&amp; hexo deploy</span><br></pre></td></tr></table></figure>
+
+        
+
+      </div>
+    
+
+    
+      <div class="post-footer">
+        
+          <div class="post-tags">
+            
+              <a href="/tags/Hexo/">
+                #Hexo
+              </a>
+            
+          </div>
+        
+
+        
+
+        
+          <div class="post-eof the-shape"></div>
+        
+      </div>
+    
+  </div>
+
+
+  
+    
+
+  <div class="post post-type-normal ">
+    <div class="post-header">
+
+      
+      
+        <h1 class="post-title">
+          
+          
+            
               <a class="post-title-link" href="/2015/08/15/codepen/">
                 Une nouvelle aventure commence
               </a>
@@ -209,17 +288,7 @@ body{
         
           <p>Personnellement, j’ai toujours préféré réinventer la roue plutôt que d’utiliser un module déjà tout fait ou de copier/coller du code. L’intérêt est évidemment d’avoir quelque chose d’entièrement customisable, mais le but est aussi d’acquérir une connaissance pratique et une experience sur des systèmes qu’on sera ammené à utiliser tot ou tard (ici les apis).</p>
 <p>Aujourd’hui, je vous propose donc d’implémenter les bases d’une api avec <strong>node</strong>, <strong>express</strong> et <strong>mongo</strong>. Let’s go !</p>
-<p><img src="/images/rest_api.png" alt=""><br><a id="more"></a></p>
-<p>Nous allons créer une api simple dont le but sera de gérer des pandas; parce que les pandas c’est cool. A la fin de ce tuto nous auront appris à:</p>
-<ul>
-<li>gérer des URL standardisées</li>
-<li>gérer un CRUD (<strong>Create</strong>, <strong>Read</strong>, <strong>Update</strong>, <strong>Delete</strong>) sur un item donné</li>
-<li>utiliser les verbes HTTP (<strong>GET</strong>, <strong>POST</strong>, <strong>PUT</strong>, <strong>DELETE</strong>)</li>
-</ul>
-<p>Bref, du REST tout ce qu’il y’a de plus basique.</p>
-<h3 id="Fondation"><a href="#Fondation" class="headerlink" title="Fondation"></a>Fondation</h3><p>On commence par créer nos dépendances.</p>
-<figure class="highlight javascript"><figcaption><span>package.json</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="string">"name"</span>: <span class="string">"node-api"</span>,</span><br><span class="line">    <span class="string">"main"</span>: <span class="string">"server.js"</span>,</span><br><span class="line">    <span class="string">"private"</span>: <span class="literal">true</span>,</span><br><span class="line">    <span class="string">"dependencies"</span>: &#123;</span><br><span class="line">        <span class="string">"express"</span>: <span class="string">"4.*"</span>,</span><br><span class="line">        <span class="string">"mongoose"</span>: <span class="string">"3.*"</span>,</span><br><span class="line">        <span class="string">"body-parser"</span>: <span class="string">"1.*"</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p><strong>Express</strong> est un framework node dédié au web. <strong>Mongoose</strong> est un ORM pour mongo qui nous permettra de communiquer avec celui-ci sans se prendre la tête. <strong>Body-parser</strong>, quant à lui, nous permettra de décoder le contenu d’une requête.</p>
+<p><img src="/images/rest_api.png" alt=""><br>
           <div class="post-more-link center">
             <a class="btn" href="/2015/03/20/restful-api/#more">
               Lire la suite &raquo;
@@ -301,13 +370,7 @@ body{
         
           <p>Heroku est connu pour faciliter le déploiement d’application. On peut désormais se concenter uniquement sur les choses qui nous intéressent au lieu d’avoir à configurer nos serveurs et d’en prévoir la scalabilité.</p>
 <p>Aujourd’hui, nous allons voir comment déployer notre blog sans le moindre frais et de manière scalable en quelques secondes.</p>
-<p><img src="/images/heroku-logo.jpg"><br><a id="more"></a></p>
-<h3 id="Bien-commencer"><a href="#Bien-commencer" class="headerlink" title="Bien commencer"></a>Bien commencer</h3><p>Tout d’abord allez sur <a href="https://www.heroku.com" target="_blank" rel="noopener">Heroku</a> et ouvrez votre compte gratuit. Avant d’aller plus loin, assurez vous d’avoir <strong>node</strong>, <strong>npm</strong>, <strong>git</strong> et <strong>l’utilitaire heroku</strong> sur votre machine.</p>
-<p>Sous debian, l’utilitaire heroku se récupère ainsi:</p>
-<figure class="highlight bash"><figcaption><span>install heroku</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ wget -qO- https://toolbelt.heroku.com/install-ubuntu.sh | sh</span><br></pre></td></tr></table></figure>
-<p>Vous devriez maintenant être capable d’accéder à la ligne de commande d’heroku.</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ heroku</span><br></pre></td></tr></table></figure>
-<p><img src="/images/heroku-cmd.png"></p>
+<p><img src="/images/heroku-logo.jpg"><br>
           <div class="post-more-link center">
             <a class="btn" href="/2015/03/18/deploy-heroku/#more">
               Lire la suite &raquo;
@@ -385,13 +448,7 @@ body{
         
           <p>Si comme moi vous êtes rebuté par les back offices et les usines à gaz facon wordpress alors <a href="http://hexo.io/" target="_blank" rel="noopener">Hexo</a> est fait pour vous. Ici, pas de base de données, seulement du json et du markdown simple. Plus besoin de se connecter ou de lancer un serveur pour rédiger et formater son article. Le bloc note sera notre seul et unique outil. Besoin d’un exemple ? C’est partit.</p>
 <figure class="highlight plain"><figcaption><span>mon-article</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">title: Hexo, un blog en markdown</span><br><span class="line">date: 2015-02-22 18:29:50</span><br><span class="line">tags:</span><br><span class="line">- Hexo</span><br><span class="line">---</span><br><span class="line"></span><br><span class="line">Si vous êtes rebuté par les back offices et les ..</span><br></pre></td></tr></table></figure>
-<p>Génial non ? L’entête de notre article est délimité par les trois “-“ et le reste du contenu utilisera du mardown simple. Nous allons maintenant voir comment créer entièrement un blog sous hexo en moins de 5 minutes.<br><a id="more"></a></p>
-<h3 id="Utilisation-de-base"><a href="#Utilisation-de-base" class="headerlink" title="Utilisation de base"></a>Utilisation de base</h3><p>C’est le moment d’installer node si vous l’avez pas déjà fait sinon vous pouvez dès à présent récupérer hexo comme ci-dessous:</p>
-<figure class="highlight bash"><figcaption><span>install-hexo</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ npm install -g hexo</span><br></pre></td></tr></table></figure>
-<p>Installer hexo globalement vous permet d’avoir accès à sa ligne de commande. Il est ainsi aisé de créer un blog à partir de zéro.</p>
-<figure class="highlight bash"><figcaption><span>init-blog</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ hexo init project-test</span><br><span class="line">$ <span class="built_in">cd</span> project-test</span><br><span class="line">$ npm install</span><br></pre></td></tr></table></figure>
-<p>Tadam, vous avez maintenant un blog prêt à être utilisé. Elle est pas belle la vie ? Vous ne me croyez pas ? Alors lancez cette commande.</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
+<p>Génial non ? L’entête de notre article est délimité par les trois “-“ et le reste du contenu utilisera du mardown simple. Nous allons maintenant voir comment créer entièrement un blog sous hexo en moins de 5 minutes.<br>
           <div class="post-more-link center">
             <a class="btn" href="/2015/02/22/hexo-blog/#more">
               Lire la suite &raquo;
@@ -523,7 +580,7 @@ body{
       <p class="site-description motion-element">Node et Javascript en pratique: tutoriels, exemple et experimentation.</p>
       <div class="site-state motion-element">
         <div class="site-state-item site-state-posts">
-          <span class="site-state-item-count">5</span>
+          <span class="site-state-item-count">6</span>
           <span class="site-state-item-name">articles</span>
         </div>
         <div class="site-state-item site-state-tags">
@@ -531,7 +588,7 @@ body{
             <span class="site-state-item-name">tags</span>
         </div>
         <div class="site-state-item site-state-pages">
-            <span class="site-state-item-count">2</span>
+            <span class="site-state-item-count">3</span>
             <span class="site-state-item-name">pages</span>
         </div>
       </div>

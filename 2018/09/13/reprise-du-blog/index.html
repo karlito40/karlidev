@@ -37,11 +37,11 @@ body{
 </style>
 
 
-  <title> Archive // Un blog... </title>
+  <title> Hexo et Github Pages // Un blog... </title>
 </head>
 
 <body>
-  <div class="container one-column  page-archive ">
+  <div class="container one-column page-post-detail">
     <div class="headband"></div>
 
     <div id="header" class="header">
@@ -95,34 +95,9 @@ body{
             
           
 
-          <div id="posts" class="posts-collapse">
+          <div id="posts" class="posts-expand">
             
-
-  <span class="archive-move-on"></span>
-
-  <span class="archive-page-counter">
-    
-    
-     
-    
-    Um..! 6 articles au total. Et ca ne fait que commencer.
-  </span>
-
   
-
-    
-    
-    
-
-    
-      
-      <div class="collection-title">
-        <h2 class="archive-year motion-element" id="archive-year-2015">2015</h2>
-      </div>
-    
-    
-
-    
 
   <div class="post post-type-normal ">
     <div class="post-header">
@@ -133,9 +108,7 @@ body{
           
           
             
-              <a class="post-title-link" href="/2015/08/15/codepen/">
-                Une nouvelle aventure commence
-              </a>
+              Hexo et Github Pages
             
           
         </h1>
@@ -144,7 +117,7 @@ body{
       <div class="post-meta">
           <span class="post-time">
             
-              15/08
+              Posté le 13/09/2018
             
           </span>
         
@@ -154,12 +127,53 @@ body{
     </div>
 
     
+      <div class="post-body">
 
+        
+        
+
+        
+          <p>Eh non je ne suis pas encore mort ! Pour feter la fin de l’été je me suis dit qu’il était<br>temps de reprendre en main ce bon vieux blog. Bon, ça ce n’est pas fait sans malheur.</p>
+<p>Tout d’abord il m’a fallut batailler pour mettre à jour Hexo. Plus rien ne marchait. J’ai donc<br>opté pour la solution radicale: repartir de zéro et corriger le thème à la main. Après quelques péripéties, j’ai décidé de ne pas m’étendre sur le jeu. Je vais plutôt aborder le déploiement sous Github Pages avec nom de domaine personnalisé.</p>
+<p>Il existe deux types de sites disponibles selon les besoins: <strong>utilisateur</strong> ou dédié à un <strong>projet</strong>.</p>
+<p>Une page Github <strong>utilisateur</strong> aura pour lien <strong>https://<code>pseudo-github</code>.github.io</strong>. Elle ne peut être créée qu’avec un repository nommé <strong><code>pseudo-github</code>.github.io</strong> comme je l’ai fait avec le mien <a href="https://github.com/karlito40/karlito40.github.io" target="_blank" rel="noopener">repository:karlito40.github.io</a> accessible sous <a href="https://karlito40.github.io" target="_blank" rel="noopener">https://karlito40.github.io</a>. Le site ne sera lu qu’à partir de la branche <code>master</code>.</p>
+<p>Une page <strong>projet</strong> sera accessible sous <strong>https://<code>pseudo-github</code>.github.io/<code>nom-du-repository-cible</code></strong>. Le site ira chercher le repository donné dans l’url puis analysera la branche <code>master</code> ou son dossier <code>/docs</code>. Dans le cas ou ces conditions ne sont pas remplis, Github consultera la branche <code>gh-pages</code> du projet.</p>
+<p>Ne reste plus qu’à définir un nom de domaine personnalisé. Pour cela, il suffit d’aller dans le repository en question sous la rubrique <strong>settings</strong> puis remplir la section <strong>Custom domain</strong> avec par exemple blog.karlidev.fr. Ensuite, rendez vous sur votre hebergeur de nom de domaine. Ajoutez un paramètre CNAME pointant vers <strong><code>pseudo-github</code>.github.io</strong> tout en oubliant pas d’activer un certificat SSL sur votre domaine.</p>
+<h3 id="Etapes-a-suivre-pour-hexo"><a href="#Etapes-a-suivre-pour-hexo" class="headerlink" title="Etapes à suivre pour hexo"></a>Etapes à suivre pour hexo</h3><p>Installez le plugin de déploiement Github page</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ npm i hexo-deployer-git --save</span><br></pre></td></tr></table></figure>
+<p>Configuration du site</p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">url:</span> <span class="attr">https://blog.karlidev.fr</span> <span class="comment"># votre nom de domaine customisé</span></span><br><span class="line">                              <span class="comment"># ou https://pseudo-github.github.io/</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="attr">deploy:</span></span><br><span class="line"><span class="attr">  type:</span> <span class="string">git</span></span><br><span class="line"><span class="attr">  repo:</span> <span class="attr">https://github.com/karlito40/karlito40.github.io.git</span> <span class="comment"># à remplacer par le votre</span></span><br><span class="line"><span class="attr">  branch:</span> <span class="string">master</span> <span class="comment"># ou gh-pages dans le cas d'une page projet</span></span><br></pre></td></tr></table></figure>
+<p>Lancement du déploiement</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo clean &amp;&amp; hexo generate &amp;&amp; hexo deploy</span><br></pre></td></tr></table></figure>
+
+        
+
+      </div>
+    
+
+    
+      <div class="post-footer">
+        
+          <div class="post-tags">
+            
+              <a href="/tags/Hexo/">
+                #Hexo
+              </a>
+            
+          </div>
+        
+
+        
+
+        
+      </div>
     
   </div>
 
 
 
+  
+    
   
 
           </div>
@@ -179,6 +193,15 @@ body{
 <div id="sidebar" class="sidebar">
   <div class="sidebar-inner">
 
+    
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-overview" data-target="site-overview">
+          Ensemble
+        </li>
+        <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc">
+          Table Des Matières
+        </li>
+      </ul>
     
 
     <div class="site-overview">
@@ -220,6 +243,10 @@ body{
 
     </div>
 
+    
+      <div class="post-toc sidebar-panel-active">
+        <ol class="motion-element"><li class="motion-element-item motion-element-level-3"><a class="motion-element-link" href="#Etapes-a-suivre-pour-hexo"><span class="motion-element-number">1.</span> <span class="motion-element-text">Etapes à suivre pour hexo</span></a></li></ol>
+      </div>
     
   </div>
 </div>
@@ -384,7 +411,42 @@ body{
   
   
     <script type="text/javascript">
-      $('.archive-year').velocity('transition.slideLeftIn');
+      $(document).ready(function () {
+        var html = $('html');
+
+        $('.sidebar-nav li').on('click', function () {
+          var item = $(this);
+          var activeTabClassName = 'sidebar-nav-active';
+          var activePanelClassName = 'sidebar-panel-active';
+          if (item.hasClass(activeTabClassName)) {
+            return;
+          }
+
+          var currentTarget = $('.' + activePanelClassName);
+          var target = $('.' + item.data('target'));
+
+          $.Velocity
+            .animate(currentTarget, 'transition.slideUpOut', 200)
+            .then(function () {
+              target
+              .velocity('stop')
+              .velocity('transition.slideDownIn', 200)
+              .addClass(activePanelClassName);
+            });
+
+          item.siblings().removeClass(activeTabClassName);
+          item.addClass(activeTabClassName);
+        });
+
+        $('.post-toc a').on('click', function (e) {
+          e.preventDefault();
+          var offset = $(this.getAttribute('href')).offset().top;
+          html.velocity('stop').velocity('scroll', {
+            offset: offset  + 'px',
+            mobileHA: false
+          });
+        });
+      });
     </script>
   
 

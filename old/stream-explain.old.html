@@ -37,11 +37,13 @@ body{
 </style>
 
 
-  <title> Archive // Un blog... </title>
+  <title>
+  L'importance des streams // Un blog...
+</title>
 </head>
 
 <body>
-  <div class="container one-column  page-archive ">
+  <div class="container one-column ">
     <div class="headband"></div>
 
     <div id="header" class="header">
@@ -98,69 +100,23 @@ body{
           <div id="posts" class="posts-collapse">
             
 
-  <span class="archive-move-on"></span>
-
-  <span class="archive-page-counter">
-    
-    
-     
-    
-    Um..! 6 articles au total. Et ca ne fait que commencer.
-  </span>
+  
+  
+    <p>L’api stream, bien que fondamentale, est souvent sous exploitée et méconnue. Pourtant c’est l’une des plus grandes forces de node, si ce n’est la plus grande.</p>
+<p>Un <strong>stream</strong> est basiquement un objet tourné vers la réception, l’envoie et le traitement de données découpées en plusieurs morceaux généralement appelés <strong>chunks</strong>. Les méthodes et les fonctionnalités de cet objet seront déterminées par son type.</p>
+<ul>
+<li>Ecriture (writable)</li>
+<li>Lecture (readable)</li>
+<li>Les deux (duplex)</li>
+</ul>
+<p>L’interet d’un stream est de pouvoir traiter des données en même temps qu’on les recoit. Il y’a beaucoup d’avantages à un tel procédé. Déjà nous allons utiliser moins de mémoire puisqu’il nous est possible d’enoyer un chunk au garbage collector. De la même manière nous allons gagner en temps de traitement. </p>
+<p>On peut se rendre compte du problème en émulant/imaginant deux api: l’une basique, l’autre à base de stream.<br><figure class="highlight javascript"><figcaption><span>voie-normal</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Création des données</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">getDatasFromApi</span>(<span class="params">cb</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> datas = []</span><br><span class="line">  , i = <span class="number">0</span>;</span><br><span class="line">  <span class="comment">// Pour l'exemple...</span></span><br><span class="line">  <span class="keyword">var</span> _job = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(datas.length&lt;<span class="number">5</span>) &#123;</span><br><span class="line">      setTimeout(_job, <span class="number">1000</span>);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      cb(datas);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  _job();</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Traitement des données</span></span><br><span class="line">getDatasFromApi(<span class="function"><span class="keyword">function</span>(<span class="params">datas</span>)</span>&#123;</span><br><span class="line">  datas.forEach(<span class="function"><span class="keyword">function</span>(<span class="params">o</span>)</span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(o.line);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure></p>
+<p>Ce même code en simulant un stream.</p>
+<figure class="highlight javascript"><figcaption><span>stream</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Création des données</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">getDatasFromApi</span>(<span class="params">stream</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> datas = []</span><br><span class="line">  , i = <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">var</span> _job = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    stream.push(<span class="string">'data'</span>, &#123;<span class="attr">line</span>: <span class="string">"Line"</span> + (i++)&#125;);</span><br><span class="line">    <span class="keyword">if</span>(i&lt;<span class="number">5</span>) &#123;</span><br><span class="line">      setTimeout(_job, <span class="number">1000</span>);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      stream.push(<span class="string">'end'</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  _job();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Stream simulation</span></span><br><span class="line"><span class="keyword">var</span> stream = &#123; </span><br><span class="line">  cbs: &#123;&#125;,</span><br><span class="line">  on: <span class="function"><span class="keyword">function</span>(<span class="params">type, cb</span>)</span>&#123;</span><br><span class="line">    <span class="keyword">this</span>.cbs[type] = cb;</span><br><span class="line">  &#125;,</span><br><span class="line">  push: <span class="function"><span class="keyword">function</span>(<span class="params">type, chunk</span>)</span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(<span class="keyword">this</span>.cbs[type]) &#123;</span><br><span class="line">      <span class="keyword">this</span>.cbs[type](chunk);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Traitement des données au vol</span></span><br><span class="line">stream.on(<span class="string">'data'</span>, <span class="function"><span class="keyword">function</span>(<span class="params">chunk</span>)</span>&#123;</span><br><span class="line">  <span class="built_in">console</span>.log(chunk.line);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">getDatasFromApi(stream);</span><br></pre></td></tr></table></figure>
+<p>Lequel est le plus intéressant ? A vous de voir…</p>
 
   
 
-    
-    
-    
-
-    
-      
-      <div class="collection-title">
-        <h2 class="archive-year motion-element" id="archive-year-2015">2015</h2>
-      </div>
-    
-    
-
-    
-
-  <div class="post post-type-normal ">
-    <div class="post-header">
-
-      
-      
-        <h1 class="post-title">
-          
-          
-            
-              <a class="post-title-link" href="/2015/08/15/codepen/">
-                Une nouvelle aventure commence
-              </a>
-            
-          
-        </h1>
-      
-
-      <div class="post-meta">
-          <span class="post-time">
-            
-              15/08
-            
-          </span>
-        
-          
-        
-      </div>
-    </div>
-
-    
-
-    
-  </div>
-
-
-
-  
 
           </div>
 
@@ -382,12 +338,6 @@ body{
   
 
   
-  
-    <script type="text/javascript">
-      $('.archive-year').velocity('transition.slideLeftIn');
-    </script>
-  
-
 
 
   
