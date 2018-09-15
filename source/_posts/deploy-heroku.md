@@ -1,4 +1,4 @@
-title: Heroku, déploiement d'hexo
+title: Heroku, déploiement d'Hexo
 date: 2015-03-18 16:07:51
 tags:
 - Heroku

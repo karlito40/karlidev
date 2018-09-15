@@ -2,7 +2,7 @@
 ## Docs: http://hexo.io/docs/configuration.html
 ## Source: https://github.com/hexojs/hexo/
 # Site
-title: Un blog...
+title: Journal de bord d'un développeur
 subtitle: Karlidev
 description: "Node et Javascript en pratique: tutoriels, exemple et experimentation."
 keywords: "Javascript, Node, Mongo, PHP, Go, Git, Benchmark, Developpeur web"

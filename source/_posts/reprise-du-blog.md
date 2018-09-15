@@ -1,15 +1,13 @@
 ---
-title: Github Pages, déploiement d'hexo
+title: Github Pages, déploiement d'Hexo
 date: 2018-09-13 16:10:52
 tags:
 - Hexo
 ---
 
-Eh non je ne suis pas encore mort ! Pour feter la fin de l'été je me suis dit qu'il était
-temps de reprendre en main ce bon vieux blog. Bon, ça ce n'est pas fait sans malheur.
+Eh non je ne suis pas encore mort ! Pour feter la fin de l'été je me suis dit qu'il était temps de reprendre en main ce bon vieux blog. Bon, ça ce n'est pas fait sans malheur.
 
-Tout d'abord il m'a fallut batailler pour mettre à jour Hexo. Plus rien ne marchait. J'ai donc
-opté pour la solution radicale: repartir de zéro et corriger le thème à la main. Ca a été long et fastidieux mais voila c'est fait.
+Tout d'abord il m'a fallut batailler pour mettre à jour Hexo. Plus rien ne marchait. J'ai donc opté pour la solution radicale: repartir de zéro et corriger le thème à la main. Ca a été long et fastidieux mais voila c'est fait.
 
 Bref, attelons nous au sujet principal: Github Pages.
 
@@ -41,7 +39,7 @@ deploy:
   branch: master # ou gh-pages dans le cas d'une page projet
 ```
 
-Créer un fichier CNAME dans `/source` pour garder le nom de domaine personnnalisé.
+Créez un fichier CNAME dans `/source` pour garder le nom de domaine personnnalisé.
 
 ``` bash
 $ echo blog.karlidev.fr > source/CNAME
