@@ -110,8 +110,85 @@ body{
           
           
             
+              <a class="post-title-link" href="/2018/09/15/supprimer-les-doublons-d-un-tableau/">
+                Supprimer les doublons d'un tableau
+              </a>
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+          <span class="post-time">
+            
+              Posté le 15/09/2018
+            
+          </span>
+        
+          
+        
+      </div>
+    </div>
+
+    
+      <div class="post-body">
+
+        
+        
+
+        
+          <p>L’approche classique est de disposer d’un objet tampon dans lequel on va stocker l’identifiant de l’élément d’un tableau. Ainsi, à mesure que l’on parcourt le tableau, on va s’assurer que cet identifiant ne soit pas déjà présent dans l’objet en question. Si il existe, ca signifie que l’élément courant est un doublon.</p>
+<p>Une première méthode est d’utiliser <code>reduce</code> ou une boucle <code>for</code> classique.</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">enleverDoublon</span>(<span class="params">tab, recupererIdentifiant</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> dejaVue = &#123;&#125;;</span><br><span class="line">  <span class="keyword">return</span> tab.reduce(<span class="function">(<span class="params">acc, val</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> identifiant = recupererIdentifiant(val);</span><br><span class="line">    <span class="keyword">if</span>(!(identifiant <span class="keyword">in</span> dejaVue)) &#123;</span><br><span class="line">      acc.push(val);</span><br><span class="line">      dejaVue[identifiant] = <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> acc;</span><br><span class="line">  &#125;, []);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">enleverDoublon([</span><br><span class="line">  &#123;<span class="attr">id</span>: <span class="number">1</span>&#125;,</span><br><span class="line">  &#123;<span class="attr">id</span>: <span class="number">2</span>&#125;,</span><br><span class="line">  &#123;<span class="attr">id</span>: <span class="number">1</span>&#125;,</span><br><span class="line">  &#123;<span class="attr">id</span>: <span class="number">3</span>&#125;</span><br><span class="line">], o =&gt; o.id);</span><br><span class="line"><span class="comment">// retourne: [ &#123; id: 1 &#125;, &#123; id: 2 &#125;, &#123; id: 3 &#125; ]</span></span><br></pre></td></tr></table></figure>
+<p>Une autre méthode plus propre mais moins performante car nécessitant la construction d’un tableau intermediaire.</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">enleverDoublon</span>(<span class="params">tab, recupererIdentifiant</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> map = <span class="keyword">new</span> <span class="built_in">Map</span>(tab.map(<span class="function"><span class="params">v</span> =&gt;</span> [recupererIdentifiant(v), v]));</span><br><span class="line">  <span class="keyword">return</span> [...map.values()];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">enleverDoublon([</span><br><span class="line">  &#123;<span class="attr">id</span>: <span class="number">1</span>, <span class="attr">domain</span>: <span class="string">'google.com'</span>&#125;,</span><br><span class="line">  &#123;<span class="attr">id</span>: <span class="number">2</span>, <span class="attr">domain</span>: <span class="string">'gmail.com'</span>&#125;,</span><br><span class="line">  &#123;<span class="attr">id</span>: <span class="number">4</span>, <span class="attr">domain</span>: <span class="string">'wikipedia.com'</span>&#125;,</span><br><span class="line">  &#123;<span class="attr">id</span>: <span class="number">5</span>, <span class="attr">domain</span>: <span class="string">'gmail.com'</span>&#125;</span><br><span class="line">], o =&gt; o.domain);</span><br><span class="line"><span class="comment">// retourne: [&#123;id: 1, domain: "google.com"&#125;, &#123;id: 2, domain: "gmail.com"&#125;, &#123;id: 4, domain: "wikipedia.com"&#125;]</span></span><br></pre></td></tr></table></figure>
+<p>Je vous laisse vous référer à la doc de <a href="https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Objets_globaux/Map" target="_blank" rel="noopener">Map</a> dans la section sur la fusion de tableau.</p>
+<p>Par contre, si on veut supprimer les vrais doublons il faudra construire un identifiant réprésentant d’avantage l’élément en question. Dans le dernier exemple on se rend compte que l’objet ‘gmail.com’ est supprimé alors qu’il n’est pas tout à fait un doublon. Pour palier à ce problème on pourrait utiliser l’identifiant suivant <code>o =&gt; o.domain + &#39;-&#39; + o.id</code> ou, plus barbare, <code>o =&gt; JSON.stringify(o)</code>.</p>
+
+        
+
+      </div>
+    
+
+    
+      <div class="post-footer">
+        
+          <div class="post-tags">
+            
+              <a href="/tags/Javascript/">
+                #Javascript
+              </a>
+            
+              <a href="/tags/Tips/">
+                #Tips
+              </a>
+            
+          </div>
+        
+
+        
+
+        
+          <div class="post-eof the-shape"></div>
+        
+      </div>
+    
+  </div>
+
+
+  
+    
+
+  <div class="post post-type-normal ">
+    <div class="post-header">
+      
+      
+        <h1 class="post-title">
+          
+          
+            
               <a class="post-title-link" href="/2018/09/13/reprise-du-blog/">
-                Github Pages, déploiement d'hexo
+                Github Pages, déploiement d'Hexo
               </a>
             
           
@@ -137,8 +214,8 @@ body{
         
 
         
-          <p>Eh non je ne suis pas encore mort ! Pour feter la fin de l’été je me suis dit qu’il était<br>temps de reprendre en main ce bon vieux blog. Bon, ça ce n’est pas fait sans malheur.</p>
-<p>Tout d’abord il m’a fallut batailler pour mettre à jour Hexo. Plus rien ne marchait. J’ai donc<br>opté pour la solution radicale: repartir de zéro et corriger le thème à la main. Ca a été long et fastidieux mais voila c’est fait.</p>
+          <p>Eh non je ne suis pas encore mort ! Pour feter la fin de l’été je me suis dit qu’il était temps de reprendre en main ce bon vieux blog. Bon, ça ce n’est pas fait sans malheur.</p>
+<p>Tout d’abord il m’a fallut batailler pour mettre à jour Hexo. Plus rien ne marchait. J’ai donc opté pour la solution radicale: repartir de zéro et corriger le thème à la main. Ca a été long et fastidieux mais voila c’est fait.</p>
 <p>Bref, attelons nous au sujet principal: Github Pages.</p>
 <p>Github différencie deux types de sites. L’un tourné autour de l’<strong>organisatation</strong> détenant un ensemble de repositories. L’autre, <strong>projet</strong>, décrit un repository donné.</p>
 <p>Une page Github d’<strong>organisatation</strong> aura pour lien <strong>https://<code>organisation</code>.github.io</strong>. Elle ne peut être créée qu’à partir d’un repository nommé <strong><code>organisation</code>.github.io</strong> comme je l’ai fait avec le mien <a href="https://github.com/karlito40/karlito40.github.io" target="_blank" rel="noopener">repository:karlito40.github.io</a> accessible sous <a href="https://karlito40.github.io" target="_blank" rel="noopener">https://karlito40.github.io</a>. Le site ne peut être placé que sur la branche <code>master</code> du repo.</p>
@@ -231,8 +308,8 @@ body{
         
           <div class="post-tags">
             
-              <a href="/tags/codepen/">
-                #codepen
+              <a href="/tags/Blabla/">
+                #Blabla
               </a>
             
           </div>
@@ -260,7 +337,7 @@ body{
           
             
               <a class="post-title-link" href="/2015/03/20/restful-api/">
-                Créer une api avec node
+                Créer une API avec Node
               </a>
             
           
@@ -304,12 +381,12 @@ body{
         
           <div class="post-tags">
             
-              <a href="/tags/node/">
-                #node
+              <a href="/tags/Node/">
+                #Node
               </a>
             
-              <a href="/tags/express/">
-                #express
+              <a href="/tags/Express/">
+                #Express
               </a>
             
               <a href="/tags/Mongo/">
@@ -341,7 +418,7 @@ body{
           
             
               <a class="post-title-link" href="/2015/03/18/deploy-heroku/">
-                Heroku, déploiement d'hexo
+                Heroku, déploiement d'Hexo
               </a>
             
           
@@ -577,11 +654,11 @@ body{
       <p class="site-description motion-element">Node et Javascript en pratique: tutoriels, exemple et experimentation.</p>
       <div class="site-state motion-element">
         <div class="site-state-item site-state-posts">
-          <span class="site-state-item-count">6</span>
+          <span class="site-state-item-count">7</span>
           <span class="site-state-item-name">articles</span>
         </div>
         <div class="site-state-item site-state-tags">
-            <span class="site-state-item-count">8</span>
+            <span class="site-state-item-count">9</span>
             <span class="site-state-item-name">tags</span>
         </div>
         <div class="site-state-item site-state-pages">
