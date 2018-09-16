@@ -110,6 +110,116 @@ body{
           
           
             
+              <a class="post-title-link" href="/2018/09/16/web-extension-injecter-une-iframe/">
+                Web extension, injecter une iframe
+              </a>
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+          <span class="post-time">
+            
+              Posté le 16/09/2018
+            
+          </span>
+        
+          
+        
+      </div>
+    </div>
+
+    
+      <div class="post-body">
+
+        
+        
+
+        
+          <p>L’idée est d’encapsuler une application distante à l’intérieur d’un site pour lui ajouter, par exemple, une sidebar. A noter que si l’on vise seulement Firefox, on peut utiliser <code>sidebar_action</code> en manifest de notre extension. Le seul problème c’est que cette sidebar vient avec un layout non configurable.</p>
+<p><strong>L’approche naïve</strong> est de créer une iframe avec source externe et de l’injecter grace à <code>document.body.append</code> dans notre <code>content_scripts</code>.</p>
+<figure class="highlight javascript"><figcaption><span>contentScript.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> appExterne = <span class="built_in">document</span>.createElement(<span class="string">'iframe'</span>);</span><br><span class="line">appExterne.id = <span class="string">'encapsulateApp'</span>;</span><br><span class="line">appExterne.src = <span class="string">'https://mon-appli.com'</span>;</span><br><span class="line"><span class="built_in">document</span>.body.append(appExterne);</span><br></pre></td></tr></table></figure>
+<p>Seulement, certains sites comme gmail ou github ne permettent pas de charger une frame externe et émettent une erreur <code>Content-Security-Policy</code>.</p>
+<p><strong>L’approche valide</strong> est d’enregistrer l’iframe dans le manifest de l’extension.</p>
+<figure class="highlight javascript"><figcaption><span>manifest.json</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ...</span></span><br><span class="line"><span class="string">"content_scripts"</span>: [</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="string">"matches"</span>: [<span class="string">"&lt;all_urls&gt;"</span>],</span><br><span class="line">    <span class="string">"js"</span>: [<span class="string">"contentScript.js"</span>]</span><br><span class="line">  &#125;</span><br><span class="line">],</span><br><span class="line"><span class="string">"web_accessible_resources"</span>:[</span><br><span class="line">  <span class="string">"public/iframeAutorise.html"</span></span><br><span class="line">]</span><br><span class="line"><span class="comment">// ...</span></span><br></pre></td></tr></table></figure>
+<p>Notre iframe <code>iframeAutorise.html</code> est alors packagé avec notre extension. Plus de problème de <code>Content-Security-Policy</code> se pose.</p>
+<p>Notre code devient:</p>
+<figure class="highlight javascript"><figcaption><span>contentScript.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> appExterne = <span class="built_in">document</span>.createElement(<span class="string">'iframe'</span>);</span><br><span class="line">appExterne.src = chrome.runtime.getURL(<span class="string">'/public/iframeAutorise.html'</span>);</span><br><span class="line"><span class="built_in">document</span>.body.append(appExterne);</span><br></pre></td></tr></table></figure>
+<p>Néanmoins, la mise à jour de l’application dépéndra du bon vouloir de l’utilisateur puisque l’iframe est intégré à l’extension. Pour palier à ce constat on va combiner deux iframes, l’une enregistré dans l’extension et l’autre servant de passerelle à l’application.</p>
+<p><code>iframeAutorise.html</code> est donc limité à un échange d’information entre les deux parties: l’extension et l’application.</p>
+<figure class="highlight html"><figcaption><span>iframeAutorise.html</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">iframe</span> <span class="attr">src</span>=<span class="string">"%APP_URL%"</span>&gt;</span><span class="tag">&lt;/<span class="name">iframe</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">"pipe.js"</span>&gt;</span><span class="undefined"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight javascript"><figcaption><span>pipe.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Réception des messages</span></span><br><span class="line"><span class="built_in">window</span>.addEventListener(<span class="string">'message'</span>, (e) =&gt; &#123;</span><br><span class="line">  <span class="comment">// Renvoi des messages à l'iframe %APP_URL%</span></span><br><span class="line">  <span class="built_in">document</span>.querySelector(<span class="string">'iframe'</span>).contentWindow.postMessage(e.data, <span class="string">'*'</span>);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>Notre application, désormais servit par <code>APP_URL</code>, devient maintenable comme tout site web.</p>
+<p>On oublie pas de mettre à jour le manifest pour rendre accessible pipe.js et permettre à notre application d’envoyer des messages à l’extension.</p>
+<figure class="highlight javascript"><figcaption><span>manifest.json</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ...</span></span><br><span class="line"><span class="string">"web_accessible_resources"</span>:[</span><br><span class="line">  <span class="string">"public/*"</span></span><br><span class="line">],</span><br><span class="line"><span class="string">"externally_connectable"</span>: &#123;</span><br><span class="line">  <span class="string">"matches"</span>: [</span><br><span class="line">    <span class="comment">// Pour le dev</span></span><br><span class="line">    <span class="string">"*://localhost/*"</span>,</span><br><span class="line">    <span class="comment">// APP_DOMAIN à remplacer</span></span><br><span class="line">    <span class="string">"*://APP_DOMAIN/*"</span>,</span><br><span class="line">    <span class="comment">// exemple: "*://*.karlidev.fr/*"</span></span><br><span class="line">    <span class="string">"*://*.APP_DOMAIN/*"</span>  </span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// ...</span></span><br></pre></td></tr></table></figure>
+<p>Envoyer un message de l’application vers l’extension nécessite de récupérer son ID et de créer un script en background pour y répondre. Mais comment récupérer cet ID ? Tout simplement en le passant en paramètre de l’<code>iframeAutorise</code>.</p>
+<figure class="highlight javascript"><figcaption><span>contentScript.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Remarque: on remplace la variable appExterne par appTunnel</span></span><br><span class="line">appTunnel.src = chrome.runtime.getURL(<span class="string">'/public/iframeAutorise.html?extid='</span> + chrome.runtime.id);</span><br></pre></td></tr></table></figure>
+<p>La création de l’iframe passerelle doit désormais se faire dynamiquement pour passer <code>extid</code> à l’application.</p>
+<figure class="highlight html"><figcaption><span>iframeAutorise.html</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">  <span class="comment">&lt;!-- PLUS NECESSAIRE --&gt;</span></span><br><span class="line">  <span class="comment">&lt;!-- &lt;iframe src="%APP_URL%"&gt;&lt;/iframe&gt; --&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">"pipe.js"</span>&gt;</span><span class="undefined"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>C’est <code>pipe.js</code> qui s’en charge.</p>
+<figure class="highlight javascript"><figcaption><span>pipe.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> params = <span class="keyword">new</span> URLSearchParams(<span class="built_in">window</span>.location.search)</span><br><span class="line"><span class="keyword">const</span> extid = params.get(<span class="string">'extid'</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> app = <span class="built_in">document</span>.createElement(<span class="string">'iframe'</span>);</span><br><span class="line">app.src = <span class="string">'%APP_URL%?extid='</span> + extid;</span><br><span class="line"><span class="built_in">document</span>.body.append(app);</span><br><span class="line"></span><br><span class="line"><span class="comment">// reste du code ...</span></span><br></pre></td></tr></table></figure>
+<p>L’application peut alors appeler l’extension directement.</p>
+<figure class="highlight javascript"><figcaption><span>application.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> params = <span class="keyword">new</span> URLSearchParams(<span class="built_in">window</span>.location.search)</span><br><span class="line"><span class="keyword">const</span> extid = params.get(<span class="string">'extid'</span>);</span><br><span class="line">chrome.runtime.sendMessage(extid, objetAEnvoyer, <span class="function"><span class="keyword">function</span>(<span class="params">response</span>) </span>&#123;&#125;);</span><br></pre></td></tr></table></figure>
+<p>L’extension doit alors créer un script en background pour gérer cet appel ce qui nécessite la mise à jour de notre manifest.</p>
+<figure class="highlight javascript"><figcaption><span>manifest.json</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ...</span></span><br><span class="line"><span class="string">"background"</span>: &#123;</span><br><span class="line">  <span class="string">"scripts"</span>:[<span class="string">"background.js"</span>]</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">/// ...</span></span><br></pre></td></tr></table></figure>
+<p>Gestion du message en arrière plan <code>background.js</code>.</p>
+<figure class="highlight javascript"><figcaption><span>background.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">chrome.runtime.onMessageExternal.addListener(<span class="function"><span class="keyword">function</span>(<span class="params">msg, sender, sendResponse</span>) </span>&#123;</span><br><span class="line">  <span class="comment">// Reception du message</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">// Envoi d'un message à l'application</span></span><br><span class="line">  sendResponse(objetAEnvoyer);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Envoi d'un message à contentScript</span></span><br><span class="line">  chrome.tabs.sendMessage(sender.tab.id, objetAEnvoyer, <span class="function"><span class="keyword">function</span>(<span class="params">response</span>) </span>&#123;&#125;);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>Coté contentScript, l’envoi d’un message à l’application se fera avec <code>window.postMessage</code>:</p>
+<figure class="highlight javascript"><figcaption><span>contentScript.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">document</span>.getElementById(<span class="string">'encapsulateApp'</span>)</span><br><span class="line">  .contentWindow</span><br><span class="line">  .postMessage(<span class="built_in">JSON</span>.stringify(objetAEnvoyer), <span class="string">'*'</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// pipe.js s'occupera de redistribuer le message</span></span><br></pre></td></tr></table></figure>
+<h4 id="Recapitulatif"><a href="#Recapitulatif" class="headerlink" title="Récapitulatif"></a>Récapitulatif</h4><p>Pour distribuer une application depuis une extension</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[contentScript: création d&apos;une iframeAutorisé]</span><br><span class="line">  -&gt; [iframeAutorisé: création de l&apos;iframeDistribué]</span><br><span class="line">    -&gt; [iframeDistribué: affiche l&apos;app]</span><br></pre></td></tr></table></figure>
+<p>Envoi d’un message de l’extension vers l’application.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[contentScript: postMessage sur iframeAutorisé]</span><br><span class="line">  -&gt; [iframeAutorisé: renvoi postMessage vers iframeDistribué]</span><br><span class="line">    -&gt; [iframeDistribué: réception du message par l&apos;app]</span><br></pre></td></tr></table></figure>
+<p>Envoi d’un message de l’application vers l’extension.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[app: chrome.runtime.sendMessage(extensionID)]</span><br><span class="line">  -&gt; [background: gestion du message]</span><br><span class="line">    | [envoi réponse à l&apos;app]</span><br><span class="line">    | [envoi nouveau message vers contentScript]</span><br></pre></td></tr></table></figure>
+
+        
+
+      </div>
+    
+
+    
+      <div class="post-footer">
+        
+          <div class="post-tags">
+            
+              <a href="/tags/Javascript/">
+                #Javascript
+              </a>
+            
+              <a href="/tags/Tips/">
+                #Tips
+              </a>
+            
+              <a href="/tags/WebExtension/">
+                #WebExtension
+              </a>
+            
+          </div>
+        
+
+        
+
+        
+          <div class="post-eof the-shape"></div>
+        
+      </div>
+    
+  </div>
+
+
+  
+    
+
+  <div class="post post-type-normal ">
+    <div class="post-header">
+      
+      
+        <h1 class="post-title">
+          
+          
+            
               <a class="post-title-link" href="/2018/09/15/supprimer-les-doublons-d-un-tableau/">
                 Supprimer les doublons d'un tableau
               </a>
@@ -365,7 +475,6 @@ body{
         
           <p>Personnellement, j’ai toujours préféré réinventer la roue plutôt que d’utiliser un module déjà tout fait ou de copier/coller du code. L’intérêt est évidemment d’avoir quelque chose d’entièrement customisable, mais le but est aussi d’acquérir une connaissance pratique et une experience sur des systèmes qu’on sera ammené à utiliser tot ou tard (ici les apis).</p>
 <p>Aujourd’hui, je vous propose donc d’implémenter les bases d’une api avec <strong>node</strong>, <strong>express</strong> et <strong>mongo</strong>. Let’s go !</p>
-<p><img src="/images/rest_api.png" alt=""><br>
           <div class="post-more-link center">
             <a class="btn" href="/2015/03/20/restful-api/#more">
               Lire la suite &raquo;
@@ -446,12 +555,36 @@ body{
         
           <p>Heroku est connu pour faciliter le déploiement d’application. On peut désormais se concenter uniquement sur les choses qui nous intéressent au lieu d’avoir à configurer nos serveurs et d’en prévoir la scalabilité.</p>
 <p>Aujourd’hui, nous allons voir comment déployer notre blog sans le moindre frais et de manière scalable en quelques secondes.</p>
-<p><img src="/images/heroku-logo.jpg"><br>
-          <div class="post-more-link center">
-            <a class="btn" href="/2015/03/18/deploy-heroku/#more">
-              Lire la suite &raquo;
-            </a>
-          </div>
+<h3 id="Bien-commencer"><a href="#Bien-commencer" class="headerlink" title="Bien commencer"></a>Bien commencer</h3><p>Tout d’abord allez sur <a href="https://www.heroku.com" target="_blank" rel="noopener">Heroku</a> et ouvrez votre compte gratuit. Avant d’aller plus loin, assurez vous d’avoir <strong>node</strong>, <strong>npm</strong>, <strong>git</strong> et <strong>l’utilitaire heroku</strong> sur votre machine.</p>
+<p>Sous debian, l’utilitaire heroku se récupère ainsi:</p>
+<figure class="highlight bash"><figcaption><span>install heroku</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ wget -qO- https://toolbelt.heroku.com/install-ubuntu.sh | sh</span><br></pre></td></tr></table></figure>
+<p>Vous devriez maintenant être capable d’accéder à la ligne de commande d’heroku.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ heroku</span><br></pre></td></tr></table></figure>
+<p><img src="/images/heroku-cmd.png"></p>
+<p>Il ne vous reste plus qu’à vous authentifier pour la première et dernière fois.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ heroku login</span><br></pre></td></tr></table></figure>
+<h3 id="Git-amp-Heroku"><a href="#Git-amp-Heroku" class="headerlink" title="Git &amp; Heroku"></a>Git &amp; Heroku</h3><p>L’un des points forts d’Heroku est d’être parfaitement intégré à git ce qui va nous faciliter la vie. Un push et nos changement sont en prod !</p>
+<p>Nous allons maintenant essayer de déployer notre blog fraichement créée. Placez vous à la racine de votre blog et executez la ligne suivante:</p>
+<figure class="highlight bash"><figcaption><span>init-repo</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ git init</span><br></pre></td></tr></table></figure>
+<p>Profitez en pour ajouter un repo externe.</p>
+<figure class="highlight plain"><figcaption><span>add-remote</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ git remote add origin https://github.com/karlito40/hexo-tuto.git</span><br></pre></td></tr></table></figure>
+<p>Dans le même temps, on va créer un autre repo externe appelé “heroku”. Tout ça est généré automatiquement par heroku grace à la commande suivante:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ heroku create hexo-tuto</span><br></pre></td></tr></table></figure>
+<p>L’appli hexo-tuto devrait alors apparaitre dans votre administration heroku et un nouveau repo externe a du être ajouté à votre code.</p>
+<figure class="highlight bash"><figcaption><span>check-remote</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ git remote -v</span><br></pre></td></tr></table></figure>
+<h3 id="Particularite-d’hexo"><a href="#Particularite-d’hexo" class="headerlink" title="Particularité d’hexo"></a>Particularité d’hexo</h3><p>Je vous déconseille fortement d’utiliser la fonctionnalité d’hexo censé faciliter le déploiement (hexo deploy) celle ci étant particulièrement buggé lorsqu’il s’agit de faire des mises à jours. Le plus simple reste d’instancier soit-même le serveur. Pour cela, nous allons créer un nouveau fichier <strong>app.js</strong> et profiter de <strong>connect</strong> pour démarrer le serveur.</p>
+<figure class="highlight javascript"><figcaption><span>app.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> connect = <span class="built_in">require</span>(<span class="string">'connect'</span>),</span><br><span class="line">  app = connect.createServer(),</span><br><span class="line">  port = process.env.PORT || <span class="number">4000</span>;</span><br><span class="line"></span><br><span class="line">app.use(connect.static(__dirname + <span class="string">'/public'</span>));</span><br><span class="line">app.use(connect.compress());</span><br><span class="line"></span><br><span class="line">app.listen(port, <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">'Hexo is running on port %d'</span>, port);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>On pense à ajouter <strong>“connect”:”2.x”</strong> dans les dépendances de notre <strong>package.json</strong> et à générer le contenu static d’hexo avant de pusher sur heroku.</p>
+<figure class="highlight bash"><figcaption><span>generate-static-files</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
+<p>Le <strong>gitignore</strong> doit également être modifié puisqu’on ne se sert pas du built-in deploy.</p>
+<figure class="highlight plain"><figcaption><span>.gitignore</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">.DS_Store</span><br><span class="line">Thumbs.db</span><br><span class="line">debug.log</span><br><span class="line">node_modules/</span><br><span class="line">.deploy/</span><br></pre></td></tr></table></figure>
+<h3 id="Deployer-votre-app"><a href="#Deployer-votre-app" class="headerlink" title="Déployer votre app"></a>Déployer votre app</h3><p>Par defaut, heroku ira chercher la commande d’instanciation de notre application dans <strong>package.json</strong> section <strong>scripts</strong> index <strong>start</strong>. On peut également définir cette commande particulière dans un fichier <strong>Procfile</strong> spécialement dédié à heroku. De ce fait, si vous n’avez pas d’index <strong>start</strong> vous pouvez tout à fait définir un Procfile chargé d’executer notre app:</p>
+<figure class="highlight bash"><figcaption><span>Procfile</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">web: node app</span><br></pre></td></tr></table></figure>
+<p>Voila, notre déploiement est enfin prêt ! Il nous reste plus qu’à pusher notre app sur le repository d’heroku:</p>
+<figure class="highlight bash"><figcaption><span>deploy-to-heroku</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ git add .</span><br><span class="line">$ git commit -m <span class="string">"Deploy"</span></span><br><span class="line">$ git push heroku master</span><br></pre></td></tr></table></figure>
+<p>Admirez le travail: <a href="https://hexo-tuto2.herokuapp.com/" target="_blank" rel="noopener">https://hexo-tuto2.herokuapp.com/</a>.</p>
+<h2 id="Eviter-l’endormissement-des-instances-gratuites"><a href="#Eviter-l’endormissement-des-instances-gratuites" class="headerlink" title="Eviter l’endormissement des instances gratuites"></a>Eviter l’endormissement des instances gratuites</h2><p>Vous avez peut être remarqué que votre site met un certains temps avant de démarrer. Pas de panique, c’est normal. Heroku a tendance à endormir les instances gratuites au bout d’une dizaine de minutes si trop peu de requêtes sont enregistrées. Par ailleurs, ce système peut facilement être contourné à l’aide de <a href="http://kaffeine.herokuapp.com/" target="_blank" rel="noopener">Kaffeine</a> qui va se charger de pinger votre instance toutes les X minutes :)</p>
+
         
 
       </div>
@@ -523,12 +656,31 @@ body{
         
           <p>Si comme moi vous êtes rebuté par les back offices et les usines à gaz facon wordpress alors <a href="http://hexo.io/" target="_blank" rel="noopener">Hexo</a> est fait pour vous. Ici, pas de base de données, seulement du json et du markdown simple. Plus besoin de se connecter ou de lancer un serveur pour rédiger et formater son article. Le bloc note sera notre seul et unique outil. Besoin d’un exemple ? C’est partit.</p>
 <figure class="highlight plain"><figcaption><span>mon-article</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">title: Hexo, un blog en markdown</span><br><span class="line">date: 2015-02-22 18:29:50</span><br><span class="line">tags:</span><br><span class="line">- Hexo</span><br><span class="line">---</span><br><span class="line"></span><br><span class="line">Si vous êtes rebuté par les back offices et les ..</span><br></pre></td></tr></table></figure>
-<p>Génial non ? L’entête de notre article est délimité par les trois “-“ et le reste du contenu utilisera du mardown simple. Nous allons maintenant voir comment créer entièrement un blog sous hexo en moins de 5 minutes.<br>
-          <div class="post-more-link center">
-            <a class="btn" href="/2015/02/22/hexo-blog/#more">
-              Lire la suite &raquo;
-            </a>
-          </div>
+<p>Génial non ? L’entête de notre article est délimité par les trois “-“ et le reste du contenu utilisera du mardown simple. Nous allons maintenant voir comment créer entièrement un blog sous hexo en moins de 5 minutes.</p>
+<h3 id="Utilisation-de-base"><a href="#Utilisation-de-base" class="headerlink" title="Utilisation de base"></a>Utilisation de base</h3><p>C’est le moment d’installer node si vous l’avez pas déjà fait sinon vous pouvez dès à présent récupérer hexo comme ci-dessous:</p>
+<figure class="highlight bash"><figcaption><span>install-hexo</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ npm install -g hexo</span><br></pre></td></tr></table></figure>
+<p>Installer hexo globalement vous permet d’avoir accès à sa ligne de commande. Il est ainsi aisé de créer un blog à partir de zéro.</p>
+<figure class="highlight bash"><figcaption><span>init-blog</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ hexo init project-test</span><br><span class="line">$ <span class="built_in">cd</span> project-test</span><br><span class="line">$ npm install</span><br></pre></td></tr></table></figure>
+<p>Tadam, vous avez maintenant un blog prêt à être utilisé. Elle est pas belle la vie ? Vous ne me croyez pas ? Alors lancez cette commande.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
+<p>Et observez le résultat dans votre navigateur préféré <a href="http://localhost:4000" target="_blank" rel="noopener">check</a>.</p>
+<p><img src="/images/screen1.png" alt=""></p>
+<p>Un blog sans article est un peu… fade. Il est temps de passer à l’action è.é</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new post <span class="string">"un super post"</span></span><br></pre></td></tr></table></figure>
+<p>Votre article est alors créée dans /source/_posts/un-super-post.md et enregistré dans le fichier /db.json. Toutes modifications faites dans un-super-post.md seront néanmoins prises en compte. Les tags et les catégories sont automatiquement gérés dans l’entête de ce dernier.</p>
+<h3 id="Image"><a href="#Image" class="headerlink" title="Image"></a>Image</h3><p>Pour uploader vos propres images, le plus simple reste de les intégrer au dossier /themes/(theme_courant)/source/images. Actuellement votre theme courant est sans doute “landscape”. Votre contenu aura ainsi accès à vos images sans avoir à passer par un prestataire externe (imgur, etc..).</p>
+<figure class="highlight markdown"><figcaption><span>utilisation-image.md</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Et observez le résultat dans votre navigateur préféré [<span class="string">check</span>](<span class="link">http://localhost:4000</span>).</span><br><span class="line"></span><br><span class="line">&lt;img class="full-image" src="/images/screen1.png" alt=""&gt;</span><br></pre></td></tr></table></figure>
+<p>A noter, j’utilise ici la balise img au lieu du markdown prévu à cet effet pour spécifier un attribut class. Si jamais vous en avez besoin, voici comment on intègre une image en markdown.</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">![<span class="string">alt_text</span>](<span class="link">/images/screen1.png</span>)</span><br></pre></td></tr></table></figure>
+<h3 id="Gestion-des-themes"><a href="#Gestion-des-themes" class="headerlink" title="Gestion des thèmes"></a>Gestion des thèmes</h3><p>Hexo vient avec un gestionnaire de thème assez simple à utiliser. La liste des thèmes est accessible <a href="https://github.com/hexojs/hexo/wiki/themes" target="_blank" rel="noopener">ici</a>. Si nous prenons par exemple le cas d’<a href="http://foreachsam.github.io/blog-framework-semantic-ui/article/" target="_blank" rel="noopener">Aiki</a> il nous suffit de dézipper ou de cloner son <a href="https://github.com/foreachsam/hexo-theme-aiki" target="_blank" rel="noopener">repo</a> dans /themes/</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ git <span class="built_in">clone</span> https://github.com/foreachsam/hexo-theme-aiki.git themes/aiki</span><br></pre></td></tr></table></figure>
+<p>La deuxième partie de commande themes/aiki dépend évidemment de votre chemin courant.</p>
+<p>Il ne vous reste plus qu’à spécifier ce thème dans /_config.yml</p>
+<figure class="highlight bash"><figcaption><span>yaml _config.yml</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">theme: aiki</span><br></pre></td></tr></table></figure>
+<p>Petite précision, le nom du thème correspond à son nom de dossier.</p>
+<p>Voila, c’est finit pour aujourd’hui ! Le but du prochain post sera de déployer ce blog pour 0€ :D</p>
+<p><img src="/images/screen2.png" alt=""></p>
+
         
 
       </div>
@@ -654,11 +806,11 @@ body{
       <p class="site-description motion-element">Node et Javascript en pratique: tutoriels, exemple et experimentation.</p>
       <div class="site-state motion-element">
         <div class="site-state-item site-state-posts">
-          <span class="site-state-item-count">7</span>
+          <span class="site-state-item-count">8</span>
           <span class="site-state-item-name">articles</span>
         </div>
         <div class="site-state-item site-state-tags">
-            <span class="site-state-item-count">9</span>
+            <span class="site-state-item-count">10</span>
             <span class="site-state-item-name">tags</span>
         </div>
         <div class="site-state-item site-state-pages">
