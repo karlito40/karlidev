@@ -87,7 +87,7 @@ On oublie pas de mettre à jour le manifest pour rendre accessible pipe.js et pe
 // ...
 ```
 
-Envoyer un message de l'application vers l'extension nécessite de récupérer son ID et de créer un script en background pour y répondre. Mais comment récupérer cet ID ? Tout simplement en le passant en paramètre de l'`iframeAutorise`.
+Envoyer un message de l'application vers l'extension nécessite de récupérer son ID et de créer un script en background pour y répondre. Mais comment récupérer cet ID ? Tout simplement en le passant en paramètre à l'`iframeAutorise`.
 
 ``` javascript contentScript.js
 // Remarque: on remplace la variable appExterne par appTunnel
@@ -161,7 +161,7 @@ document.getElementById('encapsulateApp')
 
 #### Récapitulatif
 
-Pour distribuer une application depuis une extension
+Pour distribuer une application depuis une extension.
 
 ```
 [contentScript: création d'une iframeAutorisé]
@@ -173,7 +173,7 @@ Envoi d'un message de l'extension vers l'application.
 
 ```
 [contentScript: postMessage sur iframeAutorisé]
-  -> [iframeAutorisé: renvoi postMessage vers iframeDistribué]
+  -> [iframeAutorisé: renvoi postMessage sur iframeDistribué]
     -> [iframeDistribué: réception du message par l'app]
 ```
 
