@@ -11,7 +11,6 @@ Personnellement, j'ai toujours préféré réinventer la roue plutôt que d'util
 
 Aujourd'hui, je vous propose donc d'implémenter les bases d'une api avec **node**, **express** et **mongo**. Let's go !
 
-<img src="/images/rest_api.png" alt="">
 <!-- more -->
 
 Nous allons créer une api simple dont le but sera de gérer des pandas; parce que les pandas c'est cool. A la fin de ce tuto nous auront appris à:

@@ -9,9 +9,6 @@ Heroku est connu pour faciliter le déploiement d'application. On peut désormai
 
 Aujourd'hui, nous allons voir comment déployer notre blog sans le moindre frais et de manière scalable en quelques secondes.
 
-<img src="/images/heroku-logo.jpg" >
-<!-- more -->
-
 
 ### Bien commencer
 

@@ -17,7 +17,6 @@ Si vous êtes rebuté par les back offices et les ..
 ```
 
 Génial non ? L'entête de notre article est délimité par les trois "-" et le reste du contenu utilisera du mardown simple. Nous allons maintenant voir comment créer entièrement un blog sous hexo en moins de 5 minutes.
-<!-- more -->
 
 ### Utilisation de base
 
