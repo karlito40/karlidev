@@ -41,9 +41,9 @@ Notre iframe `iframeAutorise.html` est alors packagé avec notre extension. Plus
 Notre code devient:
 
 ```javascript contentScript.js
-const appExterne = document.createElement('iframe');
-appExterne.src = chrome.runtime.getURL('/public/iframeAutorise.html');
-document.body.append(appExterne);
+const appInterne = document.createElement('iframe');
+appInterne.src = chrome.runtime.getURL('/public/iframeAutorise.html');
+document.body.append(appInterne);
 ```
 
 Néanmoins, la mise à jour de l'application dépéndra du bon vouloir de l'utilisateur puisque l'iframe est intégré à l'extension. Pour palier à ce constat on va combiner deux iframes, l'une enregistré dans l'extension et l'autre servant de passerelle à l'application.
@@ -90,7 +90,7 @@ On oublie pas de mettre à jour le manifest pour rendre accessible pipe.js et pe
 Envoyer un message de l'application vers l'extension nécessite de récupérer son ID et de créer un script en background pour y répondre. Mais comment récupérer cet ID ? Tout simplement en le passant en paramètre à l'`iframeAutorise`.
 
 ``` javascript contentScript.js
-// Remarque: on remplace la variable appExterne par appTunnel
+// Remarque: on remplace la variable appInterne par appTunnel
 appTunnel.src = chrome.runtime.getURL('/public/iframeAutorise.html?extid=' + chrome.runtime.id);
 ```
 
