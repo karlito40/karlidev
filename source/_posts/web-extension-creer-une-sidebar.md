@@ -127,12 +127,12 @@ class PanelScene {
 
     // La scène précédente doit supprimer tous les
     // styles qu'elle a injecté
-    if(this.previous) {
-      this.getPanel(this.previous).clear();
+    if(this.previousPanel) {
+      this.previousPanel.clear();
     }
 
     // Rendu du panel sélectionné
-    this.getPanelSelected().render();
+    this.selectedPanel.render();
   }
 
   createResizable() {
@@ -143,7 +143,7 @@ class PanelScene {
           outer: 'parent',
           endOnly: true,
         },
-        restrictSize: this.getPanelSelected().restrict(),
+        restrictSize: this.selectedPanel.restrict(),
       })
       .on('resizestart', this.resizeStart.bind(this))
       .on('resizeend', this.resizeEnd.bind(this))
@@ -160,12 +160,12 @@ class PanelScene {
     // On supprime la gestion du curseur sur l'iframe
     // pour éviter qu'il ne prenne le pas sur le redimensionnement
     this.appView.style.pointerEvents = 'none';
-    this.getPanelSelected().resizing = true;
+    this.selectedPanel.resizing = true;
   }
 
   resizeEnd() {
     this.appView.style.pointerEvents = 'auto';
-    this.getPanelSelected().resizing = false;
+    this.selectedPanel.resizing = false;
     // Nouveau rendu dans le but de déplacer tous les élements fixed et absolute
     this.render();
   }
@@ -173,32 +173,23 @@ class PanelScene {
   resize(rect) {
     // Change la dimension du panel
     // Provoque un nouveau rendu
-    this.getPanelSelected().setSize(rect);
+    this.selectedPanel.setSize(rect);
   }
 
   /**************************
    ** Gestion des panels **
    **************************/
-  togglePanel() {
-    const type = (!this.selected || this.selected == 'bottom') ? 'sidebar' : 'bottom';
-    this.setSelected(type);
-  }
+   select(panelIndex) {
+     if(this.selectedPanel) {
+       this.previousPanel = this.selectedPanel;
+     }
 
-  getPanel(panel) {
-    return this.panels.get(panel);
-  }
+     this.selectedPanel = this.getPanel(panelIndex);
+     this.render();
+   }
 
-  getPanelSelected() {
-    return this.getPanel(this.selected);
-  }
-
-  setSelected(panel) {
-    if(this.selected) {
-      this.previous = this.selected;
-    }
-
-    this.selected = panel;
-    this.render();
+  getPanel(panelIndex) {
+    return this.panels.get(panelIndex);
   }
 
   ensureCreate() {
@@ -209,14 +200,14 @@ class PanelScene {
 }
 ```
 
-Le changement de panel se fera donc simplement avec `setSelected` qui s'occupera de déléguer le rendu.
+Le changement de panel se fera donc simplement avec `select` qui s'occupera de déléguer le rendu.
 
 
 ``` javascript contentScript.js
 const panelScene = new PanelScene();
 
-panelScene.setSelected('sidebar');
-// ou ... panelScene.setSelected('bottom');
+panelScene.select('sidebar');
+// ou ... panelScene.select('bottom');
 
 ```
 
@@ -226,18 +217,18 @@ Nous avons plusieurs panels qui partagent tous des méthodes identiques. Déjà,
 // Tout Panel créée devra hériter de cette classe
 class BasePanel {
   constructor(scene, minSize) {
+    ensureAbstractMethods(this, [
+      'restrict',
+      'clear',
+      'render',
+    ]);
+    
     this.scene = scene;
     this.resizing = false;
     this.minSize = minSize;
     this.currentSize = minSize;
     // Dimension minimal (utile pour le redimensionnement)
     this.restrictSize = this.restrict();  
-
-    ensureAbstractMethods(this, [
-      'restrict',
-      'clear',
-      'render',
-    ]);
   }
 }
 ```
@@ -313,4 +304,4 @@ class SidebarPanel extends BasePanel {
 
 ### Conclusion
 
-L'intégralité du code peut être retrouvé [ici](https://github.com/karlito40/fofo/tree/ac214cbd08a46944dd97a013da913e7ee7da64a4/fofo-web-ext). Ce lien faisant référence à un commit en particulier, pensez à regarder la branche master pour voir si j'ai pas trouvé une meilleur façon de faire entre temps.
+L'intégralité du code peut être retrouvé [ici](https://github.com/karlito40/fofo/tree/0b9c77f5bdee16607fbbfcdbd2579146e59ef227/fofo-web-ext). Ce lien faisant référence à un commit en particulier, pensez à regarder la branche master pour voir si j'ai pas trouvé une meilleur façon de faire entre temps.
