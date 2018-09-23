@@ -2,7 +2,6 @@ title: Heroku, déploiement d'Hexo
 date: 2015-03-18 16:07:51
 tags:
 - Heroku
-- Git
 ---
 
 Heroku est connu pour faciliter le déploiement d'application. On peut désormais se concenter uniquement sur les choses qui nous intéressent au lieu d'avoir à configurer nos serveurs et d'en prévoir la scalabilité.
