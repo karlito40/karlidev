@@ -308,6 +308,15 @@ img {
   max-width: 100%;
   height: auto;
 }
+figure.caption-img {
+  padding-top: 14px;
+}
+figure.caption-img br {
+  display: none;
+}
+figure.caption-img figcaption {
+  margin-top: 14px;
+}
 .center {
   text-align: center;
 }
@@ -808,7 +817,7 @@ pre .javascript .function {
   width: 4px;
   height: 4px;
   border-radius: 50%;
-  background: #f1f4b8;
+  background: #91d40f;
 }
 .sidebar-nav {
   margin: 0;
