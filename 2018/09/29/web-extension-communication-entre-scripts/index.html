@@ -1,0 +1,487 @@
+<!doctype html>
+<html class="theme-next use-motion">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.3.0rc1"/>
+
+
+    <meta name="description" content="Node et Javascript en pratique: tutoriels, exemple et experimentation." />
+
+
+
+    <meta name="keywords" content="Javascript, Node, Mongo, PHP, Go, Git, Benchmark, Developpeur web" />
+
+
+
+
+
+    <link rel="shorticon icon" type="image/x-icon" href="/favicon.ico?v=0.3.0rc1" />
+
+
+<style>
+body{
+	word-spacing:2px;
+}
+
+</style>
+
+
+  <title> Web extension, communication entre scripts // Journal de bord d'un développeur </title>
+</head>
+
+<body>
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <div id="header" class="header">
+      <div class="header-inner">
+        <h1 class="site-meta">
+    <a href="/" class="brand">
+        <span class="logo">
+          <i class="icon-logo"></i>
+        </span>
+        <span class="site-title">Karlidev</span>
+    </a>
+</h1>
+
+
+  <ul id="menu" class="menu">
+    
+      
+      <li class="menu-item menu-item-home">
+        <a href="/">
+          <i class="menu-item-icon icon-home"></i> <br />
+          Accueil
+        </a>
+      </li>
+    
+      
+      <li class="menu-item menu-item-archives">
+        <a href="/archives">
+          <i class="menu-item-icon icon-archives"></i> <br />
+          Archives
+        </a>
+      </li>
+    
+      
+      <li class="menu-item menu-item-tags">
+        <a href="/tags">
+          <i class="menu-item-icon icon-tags"></i> <br />
+          Tags
+        </a>
+      </li>
+    
+  </ul>
+
+
+      </div>
+    </div>
+
+    <div id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content">
+          
+            
+          
+
+          <div id="posts" class="posts-expand">
+            
+  
+
+  <div class="post post-type-normal ">
+    <div class="post-header">
+      
+      
+        <h1 class="post-title">
+          
+          
+            
+              Web extension, communication entre scripts
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+          <span class="post-time">
+            
+              Posté le 29/09/2018
+            
+          </span>
+        
+          
+        
+      </div>
+    </div>
+
+    
+      <div class="post-body">
+
+        
+        
+
+        
+          <p>Précédemment, nous avons vu comment “hacker” un site web pour y intégrer notre petite application. Maintenant, il nous reste plus qu’à implémenter la communication entre les différents scripts que contiennent une WebExtension.</p>
+<p>Une WebExtension se compose de deux scripts.</p>
+<ul>
+<li><strong>content_scripts</strong> qui s’occupe de la page consultée.</li>
+<li><strong>background</strong> qui écoute en tache de fond du navigateur.</li>
+</ul>
+<p>Deux méthodes différentes existent pour dialoguer avec eux.</p>
+<ul>
+<li><code>chrome.tabs.sendMessage</code> appelle content_script.</li>
+<li><code>chrome.runtime.sendMessage</code> appelle background.</li>
+</ul>
+<p>Les scripts répondent à ces messages à l’aide de <code>chrome.runtime.onMessage</code>.</p>
+<p>Ajourd’hui nous cherchons à simplifier le système de routing des messages. Mon idée, aussi valable dans d’autres circonstances (dialogue entre microservices, api, …), est de permettre à un script d’exposer ses fonctions aux  autres. Les différents scripts devront être capable d’appeler directement ces fonctions en utilisant leurs signatures.</p>
+<p>Bon ok, je suis pas clair. Ce que je veux faire, c’est ca:</p>
+<figure class="highlight javascript"><figcaption><span>background.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="function"><span class="keyword">function</span> <span class="title">maFonction</span>(<span class="params">p1, p2</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> &#123;<span class="attr">done</span>: yes&#125;;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="function"><span class="keyword">function</span> <span class="title">uneFonctionAsync</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function"><span class="params">resolve</span> =&gt;</span> &#123;</span><br><span class="line">    setTimeout(<span class="function"><span class="params">()</span> =&gt;</span> resolve(&#123;<span class="attr">done</span>: yes&#125;), <span class="number">200</span>);</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// ... + d'autres fonctions ...</span></span><br></pre></td></tr></table></figure>
+<p>Le script en background expose ses fonctions, puis le content-script les consomment sans avoir à s’occuper de <code>sendMessage</code>.</p>
+<figure class="highlight javascript"><figcaption><span>content-script.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> res1 = <span class="keyword">await</span> background.maFonction(<span class="string">'lorem'</span>, <span class="string">'ipsum'</span>);</span><br><span class="line"><span class="keyword">const</span> res2 = <span class="keyword">await</span> background.uneFonctionAsync();</span><br></pre></td></tr></table></figure>
+<p>Bien sûr background.js pourra lui aussi appeler des fonctions de content-script.js s’il en expose.</p>
+<p>Avant de pouvoir implémenter ca, on doit d’abord se poser la question du routing. J’ai opté pour l’utilisation d’un objet contenant le nom de la commande/fonction à utiliser ainsi que son tableau d’arguments à rattacher.</p>
+<figure class="highlight javascript"><figcaption><span>message.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">createAction</span>(<span class="params">cmd, ...args</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> &#123; cmd, args &#125;;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Envoie du message</span></span><br><span class="line"><span class="keyword">const</span> action = createAction(<span class="string">'maFonction'</span>, [<span class="string">'lorem'</span>, <span class="string">'ipsum'</span>]);</span><br><span class="line">chrome.runtime.sendMessage(action, <span class="function"><span class="keyword">function</span>(<span class="params">response</span>) </span>&#123;&#125;)</span><br></pre></td></tr></table></figure>
+<p>La table de routage se fait à l’aide d’une “HashMap” comprenant en clé le nom de la fonction exposée. On profite d’<code>import * as commands from &#39;./fonctions-a-exposer&#39;</code> pour générer automatiquement l’objet.</p>
+<figure class="highlight javascript"><figcaption><span>message.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Récupère la table de routage</span></span><br><span class="line"><span class="keyword">import</span> * <span class="keyword">as</span> commands <span class="keyword">from</span> <span class="string">'./fonctions-a-exposer'</span>;</span><br><span class="line"><span class="comment">// Ecoute les messages en provenances des autres sources</span></span><br><span class="line">chrome.runtime.onMessage.addListener(listener(&#123;commands&#125;));</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">listener</span>(<span class="params">options = &#123;&#125;</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> commands = options.commands || &#123;&#125;;</span><br><span class="line">  <span class="comment">// Attention les extensions ne supportent pas await dans ce callback,</span></span><br><span class="line">  <span class="comment">// du coup on utilisera le bon vieux then</span></span><br><span class="line">  <span class="keyword">return</span> <span class="function"><span class="keyword">function</span> <span class="title">onMessage</span>(<span class="params">request, sender, sendResponse</span>) </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> response = <span class="literal">null</span>;</span><br><span class="line">    <span class="comment">// request contient l'action "maFonction" de tout à l'heure</span></span><br><span class="line">    <span class="comment">// avec comme args ['lorem', 'ipsum']</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// commands contient la table de routage</span></span><br><span class="line">    <span class="comment">// si commands.maFonction existe, on l'execute.</span></span><br><span class="line">    <span class="keyword">if</span>(request.cmd &amp;&amp; commands[request.cmd]) &#123;</span><br><span class="line">      response = commands[request.cmd](...request.args, sender);</span><br><span class="line">      <span class="comment">// On en profite pour gérer les reponses asynchrones</span></span><br><span class="line">      <span class="keyword">if</span>(response <span class="keyword">instanceof</span> <span class="built_in">Promise</span>) &#123;</span><br><span class="line">        response.then(sendResponse);</span><br><span class="line">        <span class="comment">// Dans le cas d'une réponse asynchrone</span></span><br><span class="line">        <span class="comment">// on doit retourner true</span></span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    sendResponse(response);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>On est dorénavant capable d’éxécuter une fonction à distance. Par contre, le format ne convient pas à notre idée de départ. On doit toujours passer par <code>createAction</code> ce qui rend l’utilisation pénible.</p>
+<p>Pour remédier à cela, on va créer une facade qui s’occupera d’exécuter <code>sendMessage</code> à notre place. ES2015 intègre une nouvelle classe, <code>Proxy</code>, qui convient parfaitement à cette description. Elle nous permet de placer des “écouteurs” sur un objet donné. Ces écouteurs seront appelés dès lors qu’une propriété est demandé ou modifié.</p>
+<p>Tout d’abord, amusons nous à créer le Proxy d’appel au background.</p>
+<figure class="highlight javascript"><figcaption><span>message.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Tous les accès aux propriétés de serviceBackground</span></span><br><span class="line"><span class="comment">// renverrons vers sendMessage avec comme commande le nom</span></span><br><span class="line"><span class="comment">// de la propriété appeler</span></span><br><span class="line"><span class="keyword">const</span> serviceBackground = <span class="keyword">new</span> <span class="built_in">Proxy</span>(&#123;&#125;, &#123;</span><br><span class="line">  get(obj, cmd) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="function">(<span class="params">...args</span>) =&gt;</span> sendMessage(createAction(cmd, ...args));</span><br><span class="line">  &#125;</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">// on peut désormais appeler sendMessage comme suit</span></span><br><span class="line"><span class="comment">// serviceBackground.maFonction('lorem', 'ipsum')</span></span><br></pre></td></tr></table></figure>
+<p>Un peu plus compliqué, l’envoie d’un message à content_script nécessite de récupérer l’identifiant de l’onglet dans lequel celui ci évolue. Notre objectif est de coupler cette récupération à l’envoie du message de sorte à pouvoir faire  <code>service.content.get(tabId).maFonction()</code></p>
+<figure class="highlight javascript"><figcaption><span>message.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> serviceContent = &#123;</span><br><span class="line">  <span class="comment">// Pour envoyer sur l'onglet courant</span></span><br><span class="line">  current() &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Proxy</span>(&#123;&#125;, &#123;</span><br><span class="line">      get(obj, cmd) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">async</span> (...args) =&gt; &#123;</span><br><span class="line">          <span class="keyword">const</span> tab = <span class="keyword">await</span> getCurrentTab();</span><br><span class="line">          <span class="keyword">return</span> sendMessage(tabId, createAction(cmd, ...args));</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="comment">// Pour envoyer sur un onglet spécifique</span></span><br><span class="line">  get(tabId) &#123;</span><br><span class="line">    <span class="comment">// Similaire à serviceBackground</span></span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Proxy</span>(&#123;&#125;, &#123;</span><br><span class="line">      get(obj, cmd) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="function">(<span class="params">...args</span>) =&gt;</span> sendMessage(tabId, createAction(cmd, ...args));</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;  </span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>On oublie pas d’exporter nos services.</p>
+<figure class="highlight javascript"><figcaption><span>message.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">const</span> service = &#123;</span><br><span class="line">  content: serviceContent,</span><br><span class="line">  background: serviceBackground,</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>Et voila ! Nos scripts peuvent désormais communiquer facilement entre eux.</p>
+<figure class="highlight javascript"><figcaption><span>exemple.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123;service&#125; <span class="keyword">from</span> <span class="string">'message'</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Pour appeler content_script</span></span><br><span class="line"><span class="keyword">const</span> res = <span class="keyword">await</span> service.content.get(tabId).uneCommandeExpose(<span class="string">'lorem'</span>, <span class="string">'ipsum'</span>);</span><br><span class="line"><span class="keyword">const</span> res2 = <span class="keyword">await</span> service.content.current().uneCommandeExpose(<span class="string">'lorem'</span>, <span class="string">'ipsum'</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// Pour appeler background</span></span><br><span class="line"><span class="keyword">const</span> res3 = <span class="keyword">await</span> service.background.uneCommandeExpose(<span class="string">'lorem'</span>, <span class="string">'ipsum'</span>);</span><br></pre></td></tr></table></figure>
+<p>Vous n’avez pas tout suivi ? Il vous manque une partie de l’implémentation ? N’ayez crainte, le code est disponible <a href="https://github.com/karlito40/fofo/blob/8c9ddac1b15539496669052887f599ae454ac71f/fofo-web-ext/src/shared/ipc.js" target="_blank" rel="noopener">ici</a>. Vous y retrouverez notamment l’implémentation de <code>sendMessage</code>et de <code>getCurrentTab</code>.</p>
+
+        
+
+      </div>
+    
+
+    
+      <div class="post-footer">
+        
+          <div class="post-tags">
+            
+              <a href="/tags/Javascript/">
+                #Javascript
+              </a>
+            
+              <a href="/tags/WebExtension/">
+                #WebExtension
+              </a>
+            
+          </div>
+        
+
+        
+
+        
+      </div>
+    
+  </div>
+
+
+
+  
+    
+  
+
+          </div>
+
+          
+        </div>
+
+        
+<div class="sidebar-toggle">
+  <div class="sidebar-toggle-line-wrap">
+    <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+    <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+    <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+  </div>
+</div>
+
+<div id="sidebar" class="sidebar">
+  <div class="sidebar-inner">
+
+    
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-overview" data-target="site-overview">
+          Ensemble
+        </li>
+        <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc">
+          Table Des Matières
+        </li>
+      </ul>
+    
+
+    <div class="site-overview">
+      <div class="site-author motion-element">
+        <img class="site-author-image" src="/images/default_avatar.jpg" alt="Karlito" />
+        <p class="site-author-name">Karlito</p>
+      </div>
+      <p class="site-description motion-element">Node et Javascript en pratique: tutoriels, exemple et experimentation.</p>
+      <div class="site-state motion-element">
+        <div class="site-state-item site-state-posts">
+          <span class="site-state-item-count">10</span>
+          <span class="site-state-item-name">articles</span>
+        </div>
+        <div class="site-state-item site-state-tags">
+            <span class="site-state-item-count">9</span>
+            <span class="site-state-item-name">tags</span>
+        </div>
+        <div class="site-state-item site-state-pages">
+            <span class="site-state-item-count">2</span>
+            <span class="site-state-item-name">pages</span>
+        </div>
+      </div>
+
+      
+
+      <div class="social-info motion-element">
+        
+          
+            <span class="soclial-item">
+              <a href="https://github.com/karlito40">GITHUB</a>
+            </span>
+          
+            <span class="soclial-item">
+              <a href="https://twitter.com/karlito40">TWITTER</a>
+            </span>
+          
+        
+      </div>
+
+    </div>
+
+    
+      <div class="post-toc sidebar-panel-active">
+        
+      </div>
+    
+  </div>
+</div>
+
+
+      </div>
+    </div>
+
+    <div id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">
+  
+  &copy; &nbsp; 
+  2018
+  <span class="with-love">
+    <i class="icon-heart"></i>
+  </span>
+  <span class="author">Karlito</span>
+</div>
+
+<!--
+<div class="powered-by">
+  Powered by <a class="theme-link" href="http://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Thème - <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">NexT</a>
+</div>
+-->
+
+
+
+
+
+      </div>
+    </div>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/dist/jquery.min.js?v=0.3.0rc1"></script>
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript">
+    $(document).ready(function() {
+      $(".fancybox").fancybox();
+    });
+  </script>
+
+
+
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      var body = $('body');
+      var isSidebarVisible = false;
+      var sidebarToggle = $('.sidebar-toggle');
+      var sidebarToggleLine1st = $('.sidebar-toggle-line-first')
+      var sidebarToggleLine2nd = $('.sidebar-toggle-line-middle');
+      var sidebarToggleLine3rd = $('.sidebar-toggle-line-last');
+      var sidebar = $('.sidebar');
+
+      var sidebarToogleLineStatusInit = {width: '100%', opacity: 1, left: 0, rotateZ: 0, top: 0};
+
+      var sidebarToggleLine1stStatusInit = sidebarToogleLineStatusInit;
+      var sidebarToggleLine1stStatusArrow = {width: '50%', rotateZ: '-45deg', top: '2px'};
+      var sidebarToogleLine1stStatusClose = {width: '100%', rotateZ: '-45deg', top: '5px'};
+
+      var sidebarToggleLine2ndStatusInit = sidebarToogleLineStatusInit;
+      var sidebarToggleLine2ndStatusArrow = {width: '90%'};
+      var sidebarToogleLine2ndStatusClose = {opacity: 0};
+
+      var sidebarToggleLine3rdStatusInit = sidebarToogleLineStatusInit;
+      var sidebarToggleLine3rdStatusArrow = {width: '50%', rotateZ: '45deg', top: '-2px'};
+      var sidebarToogleLine3rdStatusClose = {width: '100%', rotateZ: '45deg', top: '-5px'};
+
+      sidebatToggleMotion();
+      postsListMotion();
+      backToTopMotion();
+
+      function sidebarContentMotion () {
+        $('.sidebar .motion-element').velocity(
+          'transition.slideRightIn',
+          {stagger: 50, drag: true}
+        );
+      }
+
+
+      function backToTopMotion () {
+        var b2top = $('.back-to-top');
+        b2top.on('click', function () {
+          body.velocity('scroll');
+        });
+      }
+
+      function sidebarShowMotion () {
+        var sidebarDisplayDuration = 300;
+        var sidebarWidth = '320px';
+
+        sidebarToggleLine1st.velocity(sidebarToogleLine1stStatusClose);
+        sidebarToggleLine2nd.velocity(sidebarToogleLine2ndStatusClose);
+        sidebarToggleLine3rd.velocity(sidebarToogleLine3rdStatusClose);
+
+        sidebar.velocity({width: sidebarWidth}, sidebarDisplayDuration);
+        isDesktop() && body.velocity({paddingRight: sidebarWidth}, sidebarDisplayDuration);
+        sidebarContentMotion();
+      }
+
+      function sidebarHideMotion () {
+        isDesktop() && body.velocity({paddingRight: 0});
+        sidebar.velocity('reverse');
+
+        sidebarToggleLine1st.velocity(sidebarToggleLine1stStatusInit);
+        sidebarToggleLine2nd.velocity(sidebarToggleLine2ndStatusInit);
+        sidebarToggleLine3rd.velocity(sidebarToggleLine3rdStatusInit);
+      };
+
+      function postsListMotion () {
+        $('.post').velocity('transition.slideDownIn', {stagger: 300, drag: true});
+      }
+
+      function sidebatToggleMotion () {
+        sidebarToggle.on('click', function () {
+          isSidebarVisible ? sidebarHideMotion() : sidebarShowMotion();
+          isSidebarVisible = !isSidebarVisible;
+        });
+        sidebarToggle.hover(function () {
+          if (isSidebarVisible) {return}
+          sidebarToggleLine1st.velocity('stop').velocity(sidebarToggleLine1stStatusArrow);
+          sidebarToggleLine2nd.velocity('stop').velocity(sidebarToggleLine2ndStatusArrow);
+          sidebarToggleLine3rd.velocity('stop').velocity(sidebarToggleLine3rdStatusArrow);
+        }, function () {
+          if (isSidebarVisible) {return}
+          sidebarToggleLine1st.velocity('stop').velocity(sidebarToggleLine1stStatusInit);
+          sidebarToggleLine2nd.velocity('stop').velocity(sidebarToggleLine2ndStatusInit);
+          sidebarToggleLine3rd.velocity('stop').velocity(sidebarToggleLine3rdStatusInit);
+        });
+      }
+
+      function isDesktop () {
+        return screen.width > 991;
+      }
+
+      function isTablet () {
+        return screen.width < 992 && screen.width > 767;
+      }
+
+      function isMobile () {
+        return screen.width < 767;
+      }
+    });
+  </script>
+
+  
+
+  
+  
+    <script type="text/javascript">
+      $(document).ready(function () {
+        var html = $('html');
+
+        $('.sidebar-nav li').on('click', function () {
+          var item = $(this);
+          var activeTabClassName = 'sidebar-nav-active';
+          var activePanelClassName = 'sidebar-panel-active';
+          if (item.hasClass(activeTabClassName)) {
+            return;
+          }
+
+          var currentTarget = $('.' + activePanelClassName);
+          var target = $('.' + item.data('target'));
+
+          $.Velocity
+            .animate(currentTarget, 'transition.slideUpOut', 200)
+            .then(function () {
+              target
+              .velocity('stop')
+              .velocity('transition.slideDownIn', 200)
+              .addClass(activePanelClassName);
+            });
+
+          item.siblings().removeClass(activeTabClassName);
+          item.addClass(activeTabClassName);
+        });
+
+        $('.post-toc a').on('click', function (e) {
+          e.preventDefault();
+          var offset = $(this.getAttribute('href')).offset().top;
+          html.velocity('stop').velocity('scroll', {
+            offset: offset  + 'px',
+            mobileHA: false
+          });
+        });
+      });
+    </script>
+  
+
+
+
+  
+  
+
+  
+
+
+  
+</body>
+</html>
