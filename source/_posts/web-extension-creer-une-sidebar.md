@@ -179,14 +179,15 @@ class PanelScene {
   /**************************
    ** Gestion des panels **
    **************************/
-   select(panelIndex) {
-     if(this.selectedPanel) {
-       this.previousPanel = this.selectedPanel;
-     }
 
-     this.selectedPanel = this.getPanel(panelIndex);
-     this.render();
+ select(panelIndex) {
+   if(this.selectedPanel) {
+     this.previousPanel = this.selectedPanel;
    }
+
+   this.selectedPanel = this.getPanel(panelIndex);
+   this.render();
+ }
 
   getPanel(panelIndex) {
     return this.panels.get(panelIndex);
@@ -222,7 +223,7 @@ class BasePanel {
       'clear',
       'render',
     ]);
-    
+
     this.scene = scene;
     this.resizing = false;
     this.minSize = minSize;
