@@ -107,11 +107,8 @@ La création de l'iframe passerelle doit désormais se faire dynamiquement pour 
 C'est `pipe.js` qui s'en charge.
 
 ``` javascript pipe.js
-var params = new URLSearchParams(window.location.search)
-const extid = params.get('extid');
-
 const app = document.createElement('iframe');
-app.src = '%APP_URL%?extid=' + extid;
+app.src = '%APP_URL%' + location.search;
 document.body.append(app);
 
 // reste du code ...
@@ -120,7 +117,7 @@ document.body.append(app);
 L'application peut alors appeler l'extension directement.
 
 ``` javascript application.js
-var params = new URLSearchParams(window.location.search)
+const params = new URLSearchParams(window.location.search)
 const extid = params.get('extid');
 chrome.runtime.sendMessage(extid, objetAEnvoyer, function(response) {});
 ```
