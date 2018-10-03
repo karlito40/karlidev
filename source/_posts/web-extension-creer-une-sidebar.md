@@ -20,7 +20,7 @@ Mon envie maintenant est de me servir de ce que nous avons appris pour créer un
   <figcaption>***BottomPanel*** *Affiche un cadre (ou panel) en bas du site visité*</figcaption>
 </figure>
 
-Si vous vous sentez flouer par l'article à la vue de la deuxième image, c'est normal. Lancé dans mon élan, j'ai ajouté un deuxième panel: une devbar. Il m'était impossible de résister à la tentation.
+Si vous vous sentez floué par l'article à la vue de la deuxième image, c'est normal. Lancé dans mon élan, j'ai ajouté un deuxième panel: une devbar. Il m'était impossible de résister à la tentation.
 
 ### Etude des besoins et problèmes à résoudre
 
