@@ -20,7 +20,7 @@ Mon envie maintenant est de me servir de ce que nous avons appris pour créer un
   <figcaption>***BottomPanel*** *Affiche un cadre (ou panel) en bas du site visité*</figcaption>
 </figure>
 
-Mais là vous vous dites que la deuxième image ne fait pas référence à une sidebar. Vous vous sentez flouez par l'article. C'est normal. Lancé dans mon élan, j'ai prévu l'implémentation d'un deuxième panel: une devbar. Il m'était impossible de résister à la tentation.
+Si vous vous êtes sans doute senti floué par l'article à la vue de la deuxième image. C'est normal. Lancé dans mon élan, j'ai ajouté un deuxième panel: une devbar. Il m'était impossible de résister à la tentation.
 
 ### Etude des besoins et problèmes à résoudre
 
