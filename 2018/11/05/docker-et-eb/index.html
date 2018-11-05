@@ -37,7 +37,7 @@ body{
 </style>
 
 
-  <title> Heroku, déploiement d'Hexo // Journal de bord d'un développeur </title>
+  <title> Déploiement docker avec Elastic Beanstalk // Journal de bord d'un développeur </title>
 </head>
 
 <body>
@@ -107,7 +107,7 @@ body{
           
           
             
-              Heroku, déploiement d'Hexo
+              Déploiement docker avec Elastic Beanstalk
             
           
         </h1>
@@ -116,7 +116,7 @@ body{
       <div class="post-meta">
           <span class="post-time">
             
-              Posté le 18/03/2015
+              Posté le 05/11/2018
             
           </span>
         
@@ -132,37 +132,64 @@ body{
         
 
         
-          <p>Heroku est connu pour faciliter le déploiement d’application. On peut désormais se concenter uniquement sur les choses qui nous intéressent au lieu d’avoir à configurer nos serveurs et d’en prévoir la scalabilité.</p>
-<p>Aujourd’hui, nous allons voir comment déployer notre blog sans le moindre frais et de manière scalable en quelques secondes.</p>
-<h3 id="Bien-commencer"><a href="#Bien-commencer" class="headerlink" title="Bien commencer"></a>Bien commencer</h3><p>Tout d’abord allez sur <a href="https://www.heroku.com" target="_blank" rel="noopener">Heroku</a> et ouvrez votre compte gratuit. Avant d’aller plus loin, assurez vous d’avoir <strong>node</strong>, <strong>npm</strong>, <strong>git</strong> et <strong>l’utilitaire heroku</strong> sur votre machine.</p>
-<p>Sous debian, l’utilitaire heroku se récupère ainsi:</p>
-<figure class="highlight bash"><figcaption><span>install heroku</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ wget -qO- https://toolbelt.heroku.com/install-ubuntu.sh | sh</span><br></pre></td></tr></table></figure>
-<p>Vous devriez maintenant être capable d’accéder à la ligne de commande d’heroku.</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ heroku</span><br></pre></td></tr></table></figure>
-<p><img src="/images/heroku-cmd.png"></p>
-<p>Il ne vous reste plus qu’à vous authentifier pour la première et dernière fois.</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ heroku login</span><br></pre></td></tr></table></figure>
-<h3 id="Git-amp-Heroku"><a href="#Git-amp-Heroku" class="headerlink" title="Git &amp; Heroku"></a>Git &amp; Heroku</h3><p>L’un des points forts d’Heroku est d’être parfaitement intégré à git ce qui va nous faciliter la vie. Un push et nos changement sont en prod !</p>
-<p>Nous allons maintenant essayer de déployer notre blog fraichement créée. Placez vous à la racine de votre blog et executez la ligne suivante:</p>
-<figure class="highlight bash"><figcaption><span>init-repo</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ git init</span><br></pre></td></tr></table></figure>
-<p>Profitez en pour ajouter un repo externe.</p>
-<figure class="highlight plain"><figcaption><span>add-remote</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ git remote add origin https://github.com/karlito40/hexo-tuto.git</span><br></pre></td></tr></table></figure>
-<p>Dans le même temps, on va créer un autre repo externe appelé “heroku”. Tout ça est généré automatiquement par heroku grace à la commande suivante:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ heroku create hexo-tuto</span><br></pre></td></tr></table></figure>
-<p>L’appli hexo-tuto devrait alors apparaitre dans votre administration heroku et un nouveau repo externe a du être ajouté à votre code.</p>
-<figure class="highlight bash"><figcaption><span>check-remote</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ git remote -v</span><br></pre></td></tr></table></figure>
-<h3 id="Particularite-d’hexo"><a href="#Particularite-d’hexo" class="headerlink" title="Particularité d’hexo"></a>Particularité d’hexo</h3><p>Je vous déconseille fortement d’utiliser la fonctionnalité d’hexo censé faciliter le déploiement (hexo deploy) celle ci étant particulièrement buggé lorsqu’il s’agit de faire des mises à jours. Le plus simple reste d’instancier soit-même le serveur. Pour cela, nous allons créer un nouveau fichier <strong>app.js</strong> et profiter de <strong>connect</strong> pour démarrer le serveur.</p>
-<figure class="highlight javascript"><figcaption><span>app.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> connect = <span class="built_in">require</span>(<span class="string">'connect'</span>),</span><br><span class="line">  app = connect.createServer(),</span><br><span class="line">  port = process.env.PORT || <span class="number">4000</span>;</span><br><span class="line"></span><br><span class="line">app.use(connect.static(__dirname + <span class="string">'/public'</span>));</span><br><span class="line">app.use(connect.compress());</span><br><span class="line"></span><br><span class="line">app.listen(port, <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">'Hexo is running on port %d'</span>, port);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
-<p>On pense à ajouter <strong>“connect”:”2.x”</strong> dans les dépendances de notre <strong>package.json</strong> et à générer le contenu static d’hexo avant de pusher sur heroku.</p>
-<figure class="highlight bash"><figcaption><span>generate-static-files</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
-<p>Le <strong>gitignore</strong> doit également être modifié puisqu’on ne se sert pas du built-in deploy.</p>
-<figure class="highlight plain"><figcaption><span>.gitignore</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">.DS_Store</span><br><span class="line">Thumbs.db</span><br><span class="line">debug.log</span><br><span class="line">node_modules/</span><br><span class="line">.deploy/</span><br></pre></td></tr></table></figure>
-<h3 id="Deployer-votre-app"><a href="#Deployer-votre-app" class="headerlink" title="Déployer votre app"></a>Déployer votre app</h3><p>Par defaut, heroku ira chercher la commande d’instanciation de notre application dans <strong>package.json</strong> section <strong>scripts</strong> index <strong>start</strong>. On peut également définir cette commande particulière dans un fichier <strong>Procfile</strong> spécialement dédié à heroku. De ce fait, si vous n’avez pas d’index <strong>start</strong> vous pouvez tout à fait définir un Procfile chargé d’executer notre app:</p>
-<figure class="highlight bash"><figcaption><span>Procfile</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">web: node app</span><br></pre></td></tr></table></figure>
-<p>Voila, notre déploiement est enfin prêt ! Il nous reste plus qu’à pusher notre app sur le repository d’heroku:</p>
-<figure class="highlight bash"><figcaption><span>deploy-to-heroku</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ git add .</span><br><span class="line">$ git commit -m <span class="string">"Deploy"</span></span><br><span class="line">$ git push heroku master</span><br></pre></td></tr></table></figure>
-<p>Admirez le travail: <a href="https://hexo-tuto2.herokuapp.com/" target="_blank" rel="noopener">https://hexo-tuto2.herokuapp.com/</a>.</p>
-<h2 id="Eviter-l’endormissement-des-instances-gratuites"><a href="#Eviter-l’endormissement-des-instances-gratuites" class="headerlink" title="Eviter l’endormissement des instances gratuites"></a>Eviter l’endormissement des instances gratuites</h2><p>Vous avez peut être remarqué que votre site met un certains temps avant de démarrer. Pas de panique, c’est normal. Heroku a tendance à endormir les instances gratuites au bout d’une dizaine de minutes si trop peu de requêtes sont enregistrées. Par ailleurs, ce système peut facilement être contourné à l’aide de <a href="http://kaffeine.herokuapp.com/" target="_blank" rel="noopener">Kaffeine</a> qui va se charger de pinger votre instance toutes les X minutes :)</p>
+          <p>Avant le déploiement, nos images images docker doivent être publié pour qu’Elastic Beanstalk puisse y accéder. Pour ce faire, on utilisera les commandes suivantes.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ docker build -t my-image . </span><br><span class="line">$ docker tag my-image $ORGANISATION/my-image</span><br><span class="line">$ docker push $ORGANISATION/my-image</span><br></pre></td></tr></table></figure>
+<h2 id="A-partir-d’un-container-simple"><a href="#A-partir-d’un-container-simple" class="headerlink" title="A partir d’un container simple"></a>A partir d’un container simple</h2><ol>
+<li><p><code>eb init</code></p>
+<p>Selectionner la plateforme <code>7) Docker</code></p>
+</li>
+<li><p><code>eb create $ENV_NAME</code>  <em>(exemple: api-prod)</em></p>
+</li>
+<li><p>Créez un fichier <code>Dockerrun.aws.json</code> <code>version 1</code> pour expliciter la configuration de docker</p>
+</li>
+</ol>
+<figure class="highlight javascript"><figcaption><span>Dockerrun.aws.json</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// exemple</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="string">"AWSEBDockerrunVersion"</span>: <span class="string">"1"</span>,</span><br><span class="line">  <span class="string">"Image"</span>: &#123;</span><br><span class="line">    <span class="string">"Name"</span>: <span class="string">"karlito40/laravel"</span></span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="string">"Ports"</span>: [</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="string">"ContainerPort"</span>: <span class="string">"80"</span></span><br><span class="line">    &#125;,</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="string">"ContainerPort"</span>: <span class="string">"443"</span></span><br><span class="line">    &#125;</span><br><span class="line">  ],</span><br><span class="line">  <span class="string">"Volumes"</span>: [</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="string">"HostDirectory"</span>: <span class="string">"/var/app/current"</span>,</span><br><span class="line">      <span class="string">"ContainerDirectory"</span>: <span class="string">"/var/www/laravel"</span></span><br><span class="line">    &#125;,</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="string">"HostDirectory"</span>: <span class="string">"/var/app/current/docker/nginx/fofo-api.prod.conf"</span>,</span><br><span class="line">      <span class="string">"ContainerDirectory"</span>: <span class="string">"/etc/nginx/conf.d/default.conf"</span></span><br><span class="line">    &#125;,</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="string">"HostDirectory"</span>: <span class="string">"/var/app/current/docker/nginx/ssl"</span>,</span><br><span class="line">      <span class="string">"ContainerDirectory"</span>: <span class="string">"/etc/nginx/ssl"</span></span><br><span class="line">    &#125;</span><br><span class="line">  ],</span><br><span class="line">  <span class="string">"Logging"</span>: <span class="string">"/var/log/nginx"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ol start="4">
+<li><code>eb deploy</code></li>
+</ol>
+<h2 id="A-partir-d’une-composition"><a href="#A-partir-d’une-composition" class="headerlink" title="A partir d’une composition"></a>A partir d’une composition</h2><ol>
+<li><p><code>eb init</code></p>
+<p>Selectionner la plateforme <code>8) Multi-container Docker</code></p>
+</li>
+<li><p><code>eb create $ENV_NAME</code>  <em>(exemple: api-prod)</em></p>
+</li>
+<li><p>Créez un fichier <code>Dockerrun.aws.json</code> <code>version 2</code> pour expliciter la configuration de docker</p>
+<p>Le procédé peut être simplifié à l’aide de l’image docker micahhausler/container-transform.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cat docker-compose.yml | docker run --rm -i micahhausler/container-transform &gt; Dockerrun.aws.json</span><br></pre></td></tr></table></figure>
+<p>Il faudra cependant veiller à corriger le contenu généré. L’id de version (ici 2) doit être rajouté et, dans certains cas, certaines erreurs devront être résolues.</p>
+</li>
+</ol>
+<ol start="4">
+<li><code>eb deploy</code></li>
+</ol>
+<h2 id="Inspection-du-container"><a href="#Inspection-du-container" class="headerlink" title="Inspection du container"></a>Inspection du container</h2><ol>
+<li><code>eb ssh</code></li>
+</ol>
+<ul>
+<li><p>Les logs sont accessibles sous <code>/var/lib/docker/containers/&lt;container id&gt;/&lt;container id&gt;-json.log</code></p>
+</li>
+<li><p>La connexion au container se fait à l’aide de <code>docker exec -it &lt;mycontainer&gt; bash</code> (quand bash est installé)</p>
+</li>
+</ul>
+<h2 id="Custom-domain"><a href="#Custom-domain" class="headerlink" title="Custom domain"></a>Custom domain</h2><ul>
+<li><p>Coté nom de domaine</p>
+<ol>
+<li>Allez sur le dashboard de votre nom de domaine. </li>
+<li>Ajoutez lui un sous domaine. </li>
+<li>Configurez ses DNS en lui attribuant un CNAME pointant vers l’url de l’environnement ELB.</li>
+</ol>
+</li>
+<li><p>Coté AWS</p>
+<ol>
+<li>Allez dans le service “Certificate Manager”.</li>
+<li>Cliquez sur “Demander un certificat” puis renseignez comme nom de domaine <code>*.mon-domaine.com</code></li>
+<li>Validez la demande de certificat par mail.</li>
+<li>Retournez dans le service elastic beanstalk à la section configuration. </li>
+<li>Selectionnez le Load Balancer.</li>
+<li>Ajoutez lui un listener <code>HTTPS 443</code> pointant vers <code>HTTP 80</code> avec le certificat précédemment créée.</li>
+</ol>
+</li>
+</ul>
 
         
 
@@ -174,8 +201,8 @@ body{
         
           <div class="post-tags">
             
-              <a href="/tags/Heroku/">
-                #Heroku
+              <a href="/tags/AWS/">
+                #AWS
               </a>
             
           </div>
@@ -263,7 +290,7 @@ body{
 
     
       <div class="post-toc sidebar-panel-active">
-        <ol class="motion-element"><li class="motion-element-item motion-element-level-3"><a class="motion-element-link" href="#Bien-commencer"><span class="motion-element-number">1.</span> <span class="motion-element-text">Bien commencer</span></a></li><li class="motion-element-item motion-element-level-3"><a class="motion-element-link" href="#Git-amp-Heroku"><span class="motion-element-number">2.</span> <span class="motion-element-text">Git &amp; Heroku</span></a></li><li class="motion-element-item motion-element-level-3"><a class="motion-element-link" href="#Particularite-d’hexo"><span class="motion-element-number">3.</span> <span class="motion-element-text">Particularité d’hexo</span></a></li><li class="motion-element-item motion-element-level-3"><a class="motion-element-link" href="#Deployer-votre-app"><span class="motion-element-number">4.</span> <span class="motion-element-text">Déployer votre app</span></a></li></ol></li><li class="motion-element-item motion-element-level-2"><a class="motion-element-link" href="#Eviter-l’endormissement-des-instances-gratuites"><span class="motion-element-number"></span> <span class="motion-element-text">Eviter l’endormissement des instances gratuites</span></a>
+        <ol class="motion-element"><li class="motion-element-item motion-element-level-2"><a class="motion-element-link" href="#A-partir-d’un-container-simple"><span class="motion-element-number">1.</span> <span class="motion-element-text">A partir d’un container simple</span></a></li><li class="motion-element-item motion-element-level-2"><a class="motion-element-link" href="#A-partir-d’une-composition"><span class="motion-element-number">2.</span> <span class="motion-element-text">A partir d’une composition</span></a></li><li class="motion-element-item motion-element-level-2"><a class="motion-element-link" href="#Inspection-du-container"><span class="motion-element-number">3.</span> <span class="motion-element-text">Inspection du container</span></a></li><li class="motion-element-item motion-element-level-2"><a class="motion-element-link" href="#Custom-domain"><span class="motion-element-number">4.</span> <span class="motion-element-text">Custom domain</span></a></li></ol>
       </div>
     
   </div>

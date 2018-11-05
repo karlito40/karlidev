@@ -37,11 +37,13 @@ body{
 </style>
 
 
-  <title> Tag: Node // Journal de bord d'un développeur </title>
+  <title> Journal de bord d'un développeur </title>
 </head>
 
 <body>
-  <div class="container one-column ">
+  <div class="container one-column 
+   page-home 
+">
     <div class="headband"></div>
 
     <div id="header" class="header">
@@ -95,12 +97,8 @@ body{
             
           
 
-          <div id="posts" class="posts-collapse">
+          <div id="posts" class="posts-expand">
             
-  <div class="collection-title">
-    <h2 >Node</h2>
-  </div>
-
   
     
 
@@ -112,8 +110,8 @@ body{
           
           
             
-              <a class="post-title-link" href="/2015/03/20/restful-api/">
-                Créer une API avec Node
+              <a class="post-title-link" href="/2015/02/21/hello-world/">
+                Un développeur sauvage apparaît
               </a>
             
           
@@ -123,7 +121,7 @@ body{
       <div class="post-meta">
           <span class="post-time">
             
-              20/03
+              Posté le 21/02/2015
             
           </span>
         
@@ -133,7 +131,39 @@ body{
     </div>
 
     
+      <div class="post-body">
 
+        
+        
+
+        
+          <p>Il était une fois au pays du code binaire et des accolades, un petit développeur soucieux d’apprendre et de partager ses quelques connaissances. Ensemble nous allons partir à la conquête du javascript, go, git, mongo, node et bien d’autres choses.</p>
+<p>N’hésitez pas à me suivre sur <a href="https://https://twitter.com/karlito40" target="_blank" rel="noopener">twitter</a> si  le coeur vous en dit. Hakuna matata à vous.</p>
+<p><img src="/images/kitty.jpg"></p>
+
+        
+
+      </div>
+    
+
+    
+      <div class="post-footer">
+        
+          <div class="post-tags">
+            
+              <a href="/tags/Blabla/">
+                #Blabla
+              </a>
+            
+          </div>
+        
+
+        
+
+        
+          <div class="post-eof the-shape"></div>
+        
+      </div>
     
   </div>
 
@@ -142,6 +172,10 @@ body{
 
           </div>
 
+          
+            <div class="pagination">
+              <a class="extend prev" rel="prev" href="/">&laquo;</a><a class="page-number" href="/">1</a><span class="page-number current">2</span>
+            </div>
           
         </div>
 
@@ -254,6 +288,17 @@ body{
   <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
   <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
 
+  
+  <script type="text/javascript">
+    $(document).ready(function () {
+      $.Velocity.RunSequence([
+        { e: $('.brand'), p: { opacity: 1 }, o: { duration: 100 } },
+        { e: $('.logo'), p: { opacity: 1, top: 0 }, o: { duration: 50} },
+        { e: $('.site-title'), p: { opacity: 1, top: 0 }, o: { duration: 200, sequenceQueue: false } }
+      ]);
+      $('.menu-item').velocity('transition.slideDownIn', {display: null});
+    });
+  </script>
   
 
   <script type="text/javascript">

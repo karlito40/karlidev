@@ -817,7 +817,7 @@ pre .javascript .function {
   width: 4px;
   height: 4px;
   border-radius: 50%;
-  background: #9fb590;
+  background: #c947ff;
 }
 .sidebar-nav {
   margin: 0;
@@ -1584,4 +1584,8 @@ pre .javascript .function {
   .footer-inner {
     padding: 0 10px;
   }
+}
+.code pre,
+.gutter pre {
+  overflow: hidden;
 }

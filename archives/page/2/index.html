@@ -37,11 +37,11 @@ body{
 </style>
 
 
-  <title> Tag: Node // Journal de bord d'un développeur </title>
+  <title> Archive // Journal de bord d'un développeur </title>
 </head>
 
 <body>
-  <div class="container one-column ">
+  <div class="container one-column  page-archive ">
     <div class="headband"></div>
 
     <div id="header" class="header">
@@ -97,11 +97,31 @@ body{
 
           <div id="posts" class="posts-collapse">
             
-  <div class="collection-title">
-    <h2 >Node</h2>
-  </div>
+
+  <span class="archive-move-on"></span>
+
+  <span class="archive-page-counter">
+    
+    
+     
+    
+    Um..! 11 articles au total. Et ca ne fait que commencer.
+  </span>
 
   
+
+    
+    
+    
+
+    
+      
+      <div class="collection-title">
+        <h2 class="archive-year motion-element" id="archive-year-2015">2015</h2>
+      </div>
+    
+    
+
     
 
   <div class="post post-type-normal ">
@@ -112,8 +132,8 @@ body{
           
           
             
-              <a class="post-title-link" href="/2015/03/20/restful-api/">
-                Créer une API avec Node
+              <a class="post-title-link" href="/2015/02/21/hello-world/">
+                Un développeur sauvage apparaît
               </a>
             
           
@@ -123,7 +143,7 @@ body{
       <div class="post-meta">
           <span class="post-time">
             
-              20/03
+              21/02
             
           </span>
         
@@ -138,10 +158,15 @@ body{
   </div>
 
 
+
   
 
           </div>
 
+          
+            <div class="pagination">
+              <a class="extend prev" rel="prev" href="/archives/">&laquo;</a><a class="page-number" href="/archives/">1</a><span class="page-number current">2</span>
+            </div>
           
         </div>
 
@@ -360,6 +385,12 @@ body{
   
 
   
+  
+    <script type="text/javascript">
+      $('.archive-year').velocity('transition.slideLeftIn');
+    </script>
+  
+
 
 
   
