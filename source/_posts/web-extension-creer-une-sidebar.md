@@ -36,7 +36,7 @@ Dans le cas d'une devbar, c'est plus simple. Il nous suffit d'ajouter un padding
 
 ### Performance
 
-Par défaut un Content-Script d'une Web extension s'exécute en mode `document_idle`. Dans notre cas, ce n'est pas acceptable car l'on veut s'assurer que la sidebar soit affiché dès lors que la page s'ouvre, avant même que son contenu soit chargé. Pour cela, on utilisera le mode `document_start` dans notre manifest. Il faudra prendre en compte qu'au moment où le script s'executera il n'aura accès qu'a `<html>` à travers `document.documentElement`. L'injection du panel se fera donc dans `<html>` et non pas dans `<body>` qui lui sera accessible qu'après avoir reçu l'event `DOMContentLoaded`.
+Par défaut un Content-Script d'une Web extension s'exécute en mode `document_idle`. Dans notre cas, ce n'est pas acceptable car l'on veut s'assurer que la sidebar soit affichée dès lors que la page s'ouvre, avant même que son contenu soit chargé. Pour cela, on utilisera le mode `document_start` dans notre manifest. Il faudra prendre en compte qu'au moment où le script s'executera il n'aura accès qu'a `<html>` à travers `document.documentElement`. L'injection du panel se fera donc dans `<html>` et non pas dans `<body>` qui lui sera accessible qu'après avoir reçu l'event `DOMContentLoaded`.
 
 
 ```javascript manifest.json
