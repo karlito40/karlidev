@@ -133,15 +133,14 @@ body{
 
         
           <p>Dans l’épisode précédent, nous avons étudié l’<a href="/2018/09/16/web-extension-injecter-une-iframe">injection d’iframe</a> dans une Web extension. Nous savons désormais qu’il est possible d’intégrer du contenu à un site web en limitant l’altération de son style et sa structure.</p>
-<p>Mon envie maintenant est de me servir de ce que nous avons appris pour créer un panel ajustable et paramétrable. Comme des images sont plus parlantes que des mots, je vous présente le prototype issue de cet article.</p>
+<p>Mon projet maintenant est de créer un panel ajustable et paramétrable à l’aide de ce que nous avons appris. Comme des images sont plus parlantes que des mots, je vous présente le prototype issue de cet article.</p>
 <figure class="caption-img"><br>  <img src="/images/web-extension/sidebar-panel.png" alt="SidebarPanel"><br>  <figcaption><strong><em>SidebarPanel</em></strong> <em>Affiche un cadre (ou panel) sur le coté gauche du site visité</em></figcaption><br></figure>
 
 <figure class="caption-img"><br>  <img src="/images/web-extension/bottom-panel.png" alt="BottomPanel"><br>  <figcaption><strong><em>BottomPanel</em></strong> <em>Affiche un cadre (ou panel) en bas du site visité</em></figcaption><br></figure>
 
-<p>Si vous vous sentez floué par l’article à la vue de la deuxième image, c’est normal. Lancé dans mon élan, j’ai ajouté un deuxième panel: une devbar. Il m’était impossible de résister à la tentation.</p>
-<h3 id="Etude-des-besoins-et-problemes-a-resoudre"><a href="#Etude-des-besoins-et-problemes-a-resoudre" class="headerlink" title="Etude des besoins et problèmes à résoudre"></a>Etude des besoins et problèmes à résoudre</h3><p>Le projet laisse le choix à l’utilisateur de naviguer entre les panels. Il doit pouvoir passer d’un type de panel à un autre dynamiquement sans avoir à relancer un build ou de recharger la page. Ces panels devront aussi être redimensionnables.</p>
-<p>De ce constat, je suis parti sur un système de scène qui va s’atteler à la gestion du rendu des différents panels sélectionnables. Un peu à la React, la scène ainsi que les panels seront vues comme des composants avec une méthode de rendu et de clean. La scène s’occupera d’appeler leurs méthodes réciproques au bon moment.</p>
-<p>Les panels seront injectés en position <code>fixed</code>. Le problème principal sera donc de repositionner tous les éléments du site qui arriveront derrière ce panel.</p>
+<h3 id="Etude-des-besoins-et-points-de-blocage"><a href="#Etude-des-besoins-et-points-de-blocage" class="headerlink" title="Etude des besoins et points de blocage"></a>Etude des besoins et points de blocage</h3><p>Le projet laisse le choix à l’utilisateur de naviguer entre les panels. Il doit pouvoir passer d’un type de panel à un autre dynamiquement sans avoir à relancer un build ou de recharger la page. Ces panels devront par la même occasion être redimensionnables.</p>
+<p>De ce constat, je suis parti sur un système de scène qui va s’atteler à la gestion du rendu des différents panels sélectionnables. La scène ainsi que les panels seront vues comme des composants avec une méthode de rendu et de clean. </p>
+<p>Les panels seront injectés en position <code>fixed</code>. Le problème principal sera de repositionner tous les éléments du site qui arriveront derrière ce panel.</p>
 <p>Dans le cas d’une sidebar, l’approche qui parrait la plus évidente est d’ajouter une transformation en translateX sur <code>&lt;html&gt;</code> d’un montant résultant de la dimension du panel. Vous pouvez essayer… ca marche… à première vue. En faite, tous les éléments en position <code>fixed</code> seront correctement repositionnés mais leur fixation ne fonctionnera plus (ils ne suivront plus le scroll). On optera plutôt pour un <code>margin-left</code> et on parcourera le dom pour déplacer tous les éléments <code>fixed</code> à la main. Un autre étape à ne pas oublier est d’ajouter la position <code>relative</code> à <code>body</code> pour les éléments <code>absolute</code>.</p>
 <p>Dans le cas d’une devbar, c’est plus simple. Il nous suffit d’ajouter un padding à <code>html</code> du même montant que la dimension du panel.</p>
 <h3 id="Performance"><a href="#Performance" class="headerlink" title="Performance"></a>Performance</h3><p>Par défaut un Content-Script d’une Web extension s’exécute en mode <code>document_idle</code>. Dans notre cas, ce n’est pas acceptable car l’on veut s’assurer que la sidebar soit affichée dès lors que la page s’ouvre, avant même que son contenu soit chargé. Pour cela, on utilisera le mode <code>document_start</code> dans notre manifest. Il faudra prendre en compte qu’au moment où le script s’executera il n’aura accès qu’a <code>&lt;html&gt;</code> à travers <code>document.documentElement</code>. L’injection du panel se fera donc dans <code>&lt;html&gt;</code> et non pas dans <code>&lt;body&gt;</code> qui lui sera accessible qu’après avoir reçu l’event <code>DOMContentLoaded</code>.</p>
@@ -259,7 +258,7 @@ body{
 
     
       <div class="post-toc sidebar-panel-active">
-        <ol class="motion-element"><li class="motion-element-item motion-element-level-3"><a class="motion-element-link" href="#Etude-des-besoins-et-problemes-a-resoudre"><span class="motion-element-number">1.</span> <span class="motion-element-text">Etude des besoins et problèmes à résoudre</span></a></li><li class="motion-element-item motion-element-level-3"><a class="motion-element-link" href="#Performance"><span class="motion-element-number">2.</span> <span class="motion-element-text">Performance</span></a></li><li class="motion-element-item motion-element-level-3"><a class="motion-element-link" href="#Realisation"><span class="motion-element-number">3.</span> <span class="motion-element-text">Réalisation</span></a></li><li class="motion-element-item motion-element-level-3"><a class="motion-element-link" href="#Conclusion"><span class="motion-element-number">4.</span> <span class="motion-element-text">Conclusion</span></a></li></ol>
+        <ol class="motion-element"><li class="motion-element-item motion-element-level-3"><a class="motion-element-link" href="#Etude-des-besoins-et-points-de-blocage"><span class="motion-element-number">1.</span> <span class="motion-element-text">Etude des besoins et points de blocage</span></a></li><li class="motion-element-item motion-element-level-3"><a class="motion-element-link" href="#Performance"><span class="motion-element-number">2.</span> <span class="motion-element-text">Performance</span></a></li><li class="motion-element-item motion-element-level-3"><a class="motion-element-link" href="#Realisation"><span class="motion-element-number">3.</span> <span class="motion-element-text">Réalisation</span></a></li><li class="motion-element-item motion-element-level-3"><a class="motion-element-link" href="#Conclusion"><span class="motion-element-number">4.</span> <span class="motion-element-text">Conclusion</span></a></li></ol>
       </div>
     
   </div>
@@ -274,7 +273,7 @@ body{
         <div class="copyright">
   
   &copy; &nbsp; 
-  2018
+  2019
   <span class="with-love">
     <i class="icon-heart"></i>
   </span>

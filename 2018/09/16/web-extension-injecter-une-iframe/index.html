@@ -132,7 +132,7 @@ body{
         
 
         
-          <p>L’idée est d’encapsuler une application distante à l’intérieur d’un site pour lui ajouter, par exemple, une sidebar. A noter que si l’on vise seulement Firefox, on peut utiliser <code>sidebar_action</code> en manifest de notre extension. Le seul problème c’est que cette sidebar vient avec un layout non configurable.</p>
+          <p>Le projet est d’encapsuler une application distante à l’intérieur d’un site pour lui ajouter, par exemple, une sidebar. A noter que si l’on vise seulement Firefox, on peut utiliser <code>sidebar_action</code> en manifest de notre extension. Le seul problème c’est que cette sidebar vient avec un layout non configurable.</p>
 <p><strong>L’approche naïve</strong> est de créer une iframe avec source externe et de l’injecter grace à <code>document.body.append</code> dans notre <code>content_scripts</code>.</p>
 <figure class="highlight javascript"><figcaption><span>contentScript.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> appExterne = <span class="built_in">document</span>.createElement(<span class="string">'iframe'</span>);</span><br><span class="line">appExterne.id = <span class="string">'encapsulateApp'</span>;</span><br><span class="line">appExterne.src = <span class="string">'https://mon-appli.com'</span>;</span><br><span class="line"><span class="built_in">document</span>.body.append(appExterne);</span><br></pre></td></tr></table></figure>
 <p>Seulement, certains sites comme gmail ou github ne permettent pas de charger une frame externe et émettent une erreur <code>Content-Security-Policy</code>.</p>
@@ -291,7 +291,7 @@ body{
         <div class="copyright">
   
   &copy; &nbsp; 
-  2018
+  2019
   <span class="with-love">
     <i class="icon-heart"></i>
   </span>
