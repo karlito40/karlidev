@@ -7,7 +7,7 @@ tags:
 - WebExtension
 ---
 
-L'idée est d'encapsuler une application distante à l'intérieur d'un site pour lui ajouter, par exemple, une sidebar. A noter que si l'on vise seulement Firefox, on peut utiliser `sidebar_action` en manifest de notre extension. Le seul problème c'est que cette sidebar vient avec un layout non configurable.
+Le projet est d'encapsuler une application distante à l'intérieur d'un site pour lui ajouter, par exemple, une sidebar. A noter que si l'on vise seulement Firefox, on peut utiliser `sidebar_action` en manifest de notre extension. Le seul problème c'est que cette sidebar vient avec un layout non configurable.
 
 **L'approche naïve** est de créer une iframe avec source externe et de l'injecter grace à `document.body.append` dans notre `content_scripts`.
 

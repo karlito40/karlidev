@@ -8,7 +8,7 @@ tags:
 
 Dans l'épisode précédent, nous avons étudié l'[injection d'iframe](/2018/09/16/web-extension-injecter-une-iframe) dans une Web extension. Nous savons désormais qu'il est possible d'intégrer du contenu à un site web en limitant l'altération de son style et sa structure.
 
-Mon envie maintenant est de me servir de ce que nous avons appris pour créer un panel ajustable et paramétrable. Comme des images sont plus parlantes que des mots, je vous présente le prototype issue de cet article.
+Mon projet maintenant est de créer un panel ajustable et paramétrable à l'aide de ce que nous avons appris. Comme des images sont plus parlantes que des mots, je vous présente le prototype issue de cet article.
 
 <figure class="caption-img">
   <img src="/images/web-extension/sidebar-panel.png" alt="SidebarPanel"/>
@@ -20,15 +20,13 @@ Mon envie maintenant est de me servir de ce que nous avons appris pour créer un
   <figcaption>***BottomPanel*** *Affiche un cadre (ou panel) en bas du site visité*</figcaption>
 </figure>
 
-Si vous vous sentez floué par l'article à la vue de la deuxième image, c'est normal. Lancé dans mon élan, j'ai ajouté un deuxième panel: une devbar. Il m'était impossible de résister à la tentation.
+### Etude des besoins et points de blocage
 
-### Etude des besoins et problèmes à résoudre
+Le projet laisse le choix à l'utilisateur de naviguer entre les panels. Il doit pouvoir passer d'un type de panel à un autre dynamiquement sans avoir à relancer un build ou de recharger la page. Ces panels devront par la même occasion être redimensionnables.
 
-Le projet laisse le choix à l'utilisateur de naviguer entre les panels. Il doit pouvoir passer d'un type de panel à un autre dynamiquement sans avoir à relancer un build ou de recharger la page. Ces panels devront aussi être redimensionnables.
+De ce constat, je suis parti sur un système de scène qui va s'atteler à la gestion du rendu des différents panels sélectionnables. La scène ainsi que les panels seront vues comme des composants avec une méthode de rendu et de clean. 
 
-De ce constat, je suis parti sur un système de scène qui va s'atteler à la gestion du rendu des différents panels sélectionnables. Un peu à la React, la scène ainsi que les panels seront vues comme des composants avec une méthode de rendu et de clean. La scène s'occupera d'appeler leurs méthodes réciproques au bon moment.
-
-Les panels seront injectés en position `fixed`. Le problème principal sera donc de repositionner tous les éléments du site qui arriveront derrière ce panel.
+Les panels seront injectés en position `fixed`. Le problème principal sera de repositionner tous les éléments du site qui arriveront derrière ce panel.
 
 Dans le cas d'une sidebar, l'approche qui parrait la plus évidente est d'ajouter une transformation en translateX sur `<html>` d'un montant résultant de la dimension du panel. Vous pouvez essayer... ca marche... à première vue. En faite, tous les éléments en position `fixed` seront correctement repositionnés mais leur fixation ne fonctionnera plus (ils ne suivront plus le scroll). On optera plutôt pour un `margin-left` et on parcourera le dom pour déplacer tous les éléments `fixed` à la main. Un autre étape à ne pas oublier est d'ajouter la position `relative` à `body` pour les éléments `absolute`.
 

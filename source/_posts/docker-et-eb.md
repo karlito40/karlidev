@@ -1,11 +1,15 @@
 ---
-title: Déployer docker avec Elastic Beanstalk 
+title: Docker sous Elastic Beanstalk 
 date: 2018-11-05 20:19:10
 tags:
 - AWS
 ---
 
-Avant le déploiement, nos images images docker doivent être publié pour qu'Elastic Beanstalk puisse y accéder. Pour ce faire, on utilisera les commandes suivantes.
+Ca y'est, c'est fini ! Notre périple autour des web extensions s'achève enfin... ou presque. Eh oui, il nous manque un petit détail: la mise en production ! Bordel, va falloir payer. Bon, tant pis, on optera pour la bonne vielle solution de secours, celle dont on ne doit jamais parler au risque de se retrouver avec le FBI au cul. Allez j'ose. mettons un brain de folie dans cette vie de dev. Recréons nous un compte AWS ! ...[quelques instants plus tard]... Hop hop, le tour est joué, nous voila fraichement pourvu du free tier graal. 
+
+Plus de temps à perdre en parlote, le temps s'écoule vite, ils nous restent déjà plus que 8759 heures de "gratuité".
+
+On se dépêche de pusher illico presto nos images docker sur DockerHub et on s'attaque à AWS.
 
 ```
 $ docker build -t my-image . 
@@ -13,17 +17,14 @@ $ docker tag my-image $ORGANISATION/my-image
 $ docker push $ORGANISATION/my-image
 ```
 
-## A partir d'un container simple
+## Process de déploiement d'un conteneur unique
 
 1. `eb init`
-
-  Selectionner la plateforme `7) Docker`
-
+On sélectionne la plateforme `7) Docker`
 2. `eb create $ENV_NAME`  *(exemple: api-prod)*
+3. Créez un fichier `Dockerrun.aws.json` `version 1` 
+On y ajoute notre configuration
 
-3. Créez un fichier `Dockerrun.aws.json` `version 1` pour expliciter la configuration de docker
-
-   
 ``` javascript Dockerrun.aws.json
 // exemple
 {
@@ -59,46 +60,48 @@ $ docker push $ORGANISATION/my-image
 
 4. `eb deploy`
 
+> tadam !
 
-## A partir d'une composition
+
+## A partir d'un emsemble de conteneurs
 
 1. `eb init`
-
-   Selectionner la plateforme `8) Multi-container Docker`
-
+On sélectionne la plateforme `8) Multi-container Docker`
 2. `eb create $ENV_NAME`  *(exemple: api-prod)*
-
-3. Créez un fichier `Dockerrun.aws.json` `version 2` pour expliciter la configuration de docker
+3. Créez un fichier `Dockerrun.aws.json` `version 2` 
+On l'implémente en fonction de  notre docker-compose.yml
    
-   Le procédé peut être simplifié à l'aide de l'image docker micahhausler/container-transform.
+A noter qu'il existe l'image docker `micahhausler/container-transform` pour générer automatiquement `Dockerrun.aws.json` à partir d'un docker-compose.yml
 
-   ```
-    cat docker-compose.yml | docker run --rm -i micahhausler/container-transform > Dockerrun.aws.json
-   ```
+```
+cat docker-compose.yml | docker run --rm -i micahhausler/container-transform > Dockerrun.aws.json
+```
 
-   Il faudra cependant veiller à corriger le contenu généré. L'id de version (ici 2) doit être rajouté et, dans certains cas, certaines erreurs devront être résolues.
-
+Helas, dans mon cas, la fichier produit était buggé: volume erroné, mauvaise version, etc...
 
 4. `eb deploy`
 
-## Inspection du container
+> tadam !
 
-1. `eb ssh`
+## Débuger un conteneur
 
-- Les logs sont accessibles sous `/var/lib/docker/containers/<container id>/<container id>-json.log`
+Tout d'abord on se connecte à notre instance.
 
-- La connexion au container se fait à l'aide de `docker exec -it <mycontainer> bash` (quand bash est installé)
+```
+$ eb ssh
+```
 
+Les logs sont alors accessibles sous `/var/lib/docker/containers/<container id>/<container id>-json.log`
 
-## Custom domain
+## Ajouter un nom de domaine personnalisé à son environnement
 
-- Coté nom de domaine
+- Du coté hébergeur de nom de domaine
 
-  1. Allez sur le dashboard de votre nom de domaine. 
+  1. Placez vous sur le dashboard de votre nom de domaine. 
   2. Ajoutez lui un sous domaine. 
   3. Configurez ses DNS en lui attribuant un CNAME pointant vers l'url de l'environnement ELB.
 
-- Coté AWS
+- Du coté AWS
 
   1. Allez dans le service "Certificate Manager".
   2. Cliquez sur "Demander un certificat" puis renseignez comme nom de domaine `*.mon-domaine.com`
@@ -106,3 +109,5 @@ $ docker push $ORGANISATION/my-image
   4. Retournez dans le service elastic beanstalk à la section configuration. 
   5. Selectionnez le Load Balancer.
   6. Ajoutez lui un listener `HTTPS 443` pointant vers `HTTP 80` avec le certificat précédemment créée.
+
+  > Tadam !
